@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "546624203315",
+    "firebase_url": "https://fitpetadventure-4ce43-default-rtdb.firebaseio.com",
+    "project_id": "fitpetadventure-4ce43",
+    "storage_bucket": "fitpetadventure-4ce43.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:546624203315:android:042a59e8b0db366d76d146",
+        "android_client_info": {
+          "package_name": "com.example.fitpet_adventure"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCB72wT4KXbGHVQUTn_ZLuXF5tGKuAoUww"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
