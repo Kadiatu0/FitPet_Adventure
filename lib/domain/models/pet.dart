@@ -4,11 +4,11 @@ import 'dart:collection';
 //A class that represents the virtual pets
 class Pet{
   late final int _petId; //unique identifier of a user 
-  String? _petName; //username must be unique
-  String? _petDescription; //description of the pet
-  String? _petType; //Water, Earth, Sky, Space
-  int? _evolutionLevel; //current evolution level of the pet
-  int? _evolutionBarpoints; //current evolution points of pet, only changed through steps of user
+  String _petName = ""; //username must be unique
+  String _petDescription = ""; //description of the pet
+  String _petType = ""; //Water, Earth, Sky, Space
+  int _evolutionLevel = 1; //current evolution level of the pet
+  int _evolutionBarpoints = 0; //current evolution points of pet, only changed through steps of user
 
   Pet(int petId, String petName, String petDescription, String petType, int evolutionLevel, int evolutionBarpoints){
     _petId = petId;
@@ -24,7 +24,7 @@ class Pet{
     _petName = petName;
   }
   
-  String? get getPetName{
+  String get getPetName{
     return _petName;
   }
 
@@ -32,7 +32,7 @@ class Pet{
     _petId = petId;
   }
   
-  int? get getPetId{
+  int get getPetId{
     return _petId;
   }
 
@@ -40,7 +40,7 @@ class Pet{
     _petDescription = petDescription;
   }
   
-  String? get getPetDescription{
+  String get getPetDescription{
     return _petDescription;
   }
   
@@ -48,7 +48,7 @@ class Pet{
     _petType = petType;
   }
   
-  String? get getPetType{
+  String get getPetType{
     return _petType;
   }
 
@@ -57,17 +57,17 @@ class Pet{
   }
 
   void incrementEvolutionLevel(){
-    if(_evolutionLevel !< 3){
-      _evolutionLevel = _evolutionLevel !+ 1;
+    if(_evolutionLevel < 3){
+      _evolutionLevel = _evolutionLevel + 1;
     }
   }
   
-  int? get getEvolutionLevel{
+  int get getEvolutionLevel{
     return _evolutionLevel;
   }
 
   void incrementEvolutionBarpoints(int steps){
-    _evolutionBarpoints = _evolutionBarpoints !+ steps;
+    _evolutionBarpoints = _evolutionBarpoints + steps;
   }
   
   int? get getevolutionBarpoints{

@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 //A class that represents the logging of the steps
 class Log{
   late final int _logId; //unique identifier of the group
-  DateTime? _logDate; // mm/dd/yyyy of the log
-  int? _stepCount; //number of steps of user
+  late DateTime _logDate; // mm/dd/yyyy of the log
+  int _stepCount = 0; //number of steps of user
 
   Log(int logId, DateTime logDate, int stepCount){
     _logId = logId;
@@ -19,7 +19,7 @@ class Log{
     _logId = logId;
   }
   
-  int? get getlogId{
+  int get getlogId{
     return _logId;
   }
 
@@ -27,17 +27,16 @@ class Log{
     _logDate = logDate;
   }
   
-  DateTime? get getLogDate{
+  DateTime get getLogDate{
     return _logDate;
   }
-
 
   set setStepCount(int stepCount){
     if(stepCount >= 0){_stepCount = stepCount;}
     else{_stepCount = 0;}
   }
   
-  int? get getStepCount{
+  int get getStepCount{
     return _stepCount;
   }
 }

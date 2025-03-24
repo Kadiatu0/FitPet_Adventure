@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field, unused_import
+// ignore_for_file: unused_field, unused_import, prefer_final_fields
 import 'dart:collection';
 import 'package:fitpet_adventure/domain/models/community.dart';
 import 'pet.dart';
@@ -6,18 +6,18 @@ import 'log.dart';
 
 //A class that represents users of the app
 class User{
-  late final int _userId; //unique identifier of a user
-  String? _name; //username must be unique
-  String? _email; //email of the user(check format)
-  String? _bio; 
+  late final String _userId; //unique identifier of a user
+  String _name = ""; //username must be unique
+  String _email = ""; //email of the user(check format)
+  String _bio = ""; 
   // String? _password;//holds hash of password
-  int? _currentStepCount;
-  List<User>? _friends; //list of friends of user, add based on groups joined
-  Pet? _pet; //the virtual pet of the user 
-  List<Log>? _logs; //logs of the user steps
-  List<int>? _joinedGroups; //id of groups user is part of
+  int _currentStepCount = 0;
+  List<User> _friends = []; //list of friends of user, add based on groups joined
+  late Pet _pet; //the virtual pet of the user 
+  List<Log> _logs = []; //logs of the user steps
+  List<int> _joinedGroups = []; //id of groups user is part of
   //constructor
-  User(int userId, String name, String email,  String bio, Pet aPet){
+  User(String userId, String name, String email,  String bio, int currentStepCount){
     _userId = userId;
     _name = name;
     //check if email given is in proper format
@@ -25,15 +25,15 @@ class User{
     if(emailValid){_email = email;} else{_email = "invalid email";}
     //user bio set later in profile
     _bio = bio;
-    // _password = password;
-    _pet = aPet;
+    _currentStepCount = currentStepCount;
+    _pet = Pet(0, "", "", "", 1, 0);
   }
 
   set setName(String name){
     _name = name;
   }
   
-  String? get getName{
+  String get getName{
     return _name;
   }
   
@@ -43,7 +43,7 @@ class User{
     if(emailValid){_email = email;} else{_email = "invalid email";} //check content of email when saving it in database
   }
   
-  String? get getEmail{
+  String get getEmail{
     return _email;
   }
   
@@ -51,42 +51,42 @@ class User{
     _bio = bio;
   }
 
-  String? get getbio{
+  String get getBio{
     return _bio;
   }
 
   void incrementStep(int numSteps){
     if(numSteps >= 0){
-      _currentStepCount = _currentStepCount !+ numSteps;
+      _currentStepCount = _currentStepCount + numSteps;
       //increment the users pet given numsteps
-      _pet?.incrementEvolutionBarpoints(numSteps);
+      _pet.incrementEvolutionBarpoints(numSteps);
     
     }
   }
 
-  int? get getCurrentStepCount{
+  int get getCurrentStepCount{
     return _currentStepCount;
   }
 
-  set setuserId(int userId){
+  set setuserId(String userId){
     _userId = userId;
   }
   
-  int? get getuserId{
+  String get getuserId{
     return _userId;
   }
 
-  bool? addFriend(User aFriend){
-    _friends?.add(aFriend);
+  bool addFriend(User aFriend){
+    _friends.add(aFriend);
     return true;
   }
 
   bool? deleteFriend(User aFriend){
-    return _friends?.remove(aFriend);
+    return _friends.remove(aFriend);
     
   }
 
-  List<User>? get getFiends{
+  List<User> get getFiends{
     return _friends;
   }
 
@@ -94,24 +94,24 @@ class User{
     _pet = pet;
   }
   
-  Pet? get getPet{
+  Pet get getPet{
     return _pet;
   }
 
   //log step count every 24hrs, needs to be fizex
   void addLog(Log aLog){
-    _logs?.add(aLog);
+    _logs.add(aLog);
   }
 
-  List<Log>? get getLogs{
+  List<Log> get getLogs{
     return _logs;
   }
 
   void joinGroup(int groupId){
-    _joinedGroups?.add(groupId);
+    _joinedGroups.add(groupId);
   }
 
   bool? eixtGroup(int groupId){
-    return _joinedGroups?.remove(groupId);
+    return _joinedGroups.remove(groupId);
   }
 }

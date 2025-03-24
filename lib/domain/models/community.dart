@@ -5,10 +5,10 @@ import 'user.dart';
 //A class that represents the communities
 class Group{
   late final int _groupId; //unique identifier of the group
-  String? _groupName; //group name
-  String? _groupDescription; //description of the group
-  String? _type; //public or private
-  List<User>? _members; //user members of the group
+  String _groupName = ""; //group name
+  String _groupDescription = ""; //description of the group
+  String _type = ""; //public or private
+  List<User> _members = []; //user members of the group
 
   Group(int groupId, String groupName, String groupDescription, String type, List<User> members){
     _groupId = groupId;
@@ -22,7 +22,7 @@ class Group{
     _groupId = groupId;
   }
   
-  int? get getgroupId{
+  int get getgroupId{
     return _groupId;
   }
 
@@ -30,7 +30,7 @@ class Group{
     _groupName = groupName;
   }
   
-  String? get getGroupName{
+  String get getGroupName{
     return _groupName;
   }
 
@@ -38,7 +38,7 @@ class Group{
     _groupDescription = groupDescription;
   }
   
-  String? get getGroupdescription{
+  String get getGroupdescription{
     return _groupDescription;
   }
 
@@ -46,20 +46,20 @@ class Group{
     _type = type;
   }
   
-  String? get getType{
+  String get getType{
     return _type;
   }
 
-  bool? addMembers(User aMember){
-    _members?.add(aMember);
+  bool addMembers(User aMember){
+    _members.add(aMember);
     return true; //add way to verify member inserted
   }
 
-  bool? deleteMember(User aMember){
-    return _members?.remove(aMember);
+  bool deleteMember(User aMember){
+    return _members.remove(aMember);
   }
 
-  List<User>? get getMembers{
+  List<User> get getMembers{
     return _members;
   }
 }
