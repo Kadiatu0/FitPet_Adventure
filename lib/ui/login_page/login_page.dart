@@ -25,7 +25,7 @@ class LoginPageState extends State<LoginPage> {
     final viewModel = Provider.of<LoginViewModel>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF3E0),
+      backgroundColor: const Color.fromARGB(255, 246, 229, 178),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         toolbarHeight: 35,
@@ -33,7 +33,7 @@ class LoginPageState extends State<LoginPage> {
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new, // Use this for a bolder look
-            color: Color.fromARGB(255, 243, 162, 91),
+            color: Color.fromARGB(255, 184, 134, 11),
             size: 28, // Increase size slightly for more boldness
           ),
           onPressed: () => Navigator.pop(context),
@@ -56,7 +56,7 @@ class LoginPageState extends State<LoginPage> {
                       fontFamily: 'PressStart2P',
                       fontSize: 36,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFFEA9021),
+                      color: Color.fromARGB(255, 170, 124, 10),
                     ),
                   ),
                 ),
@@ -67,7 +67,7 @@ class LoginPageState extends State<LoginPage> {
                   height: 245, // Height of the image container
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('lib/data/model/assets/egg_pic.png'), 
+                      image: AssetImage('assets/egg_pic.png'), 
                       fit: BoxFit.cover, // the image fills the container
                     ),
                     borderRadius: BorderRadius.circular(100),
@@ -81,12 +81,12 @@ class LoginPageState extends State<LoginPage> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(35),
                     border: Border.all(
-                      color: const Color.fromARGB(255, 230, 145, 55), // Solid orange border color
+                      color: const Color.fromARGB(255, 170, 124, 10), // Solid orange border color
                       width: 2, // Width of the border
                     ),
                     boxShadow: const [
                       BoxShadow(
-                        color: Color.fromARGB(31, 235, 151, 61),
+                        color: Color.fromARGB(31, 145, 88, 28),
                         blurRadius: 15,
                         spreadRadius: 3,
                         offset: Offset(0, 7),
@@ -102,7 +102,7 @@ class LoginPageState extends State<LoginPage> {
                         controller: _emailController,
                         decoration: InputDecoration(
                           labelText: 'Email',
-                          prefixIcon: const Icon(Icons.email, color: Color(0xFFFB8C00)),
+                          prefixIcon: const Icon(Icons.email, color: Color.fromARGB(255, 170, 124, 10)),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -115,7 +115,7 @@ class LoginPageState extends State<LoginPage> {
                         controller: _passwordController,
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          prefixIcon: const Icon(Icons.lock, color: Color(0xFFFB8C00)),
+                          prefixIcon: const Icon(Icons.lock, color: Color.fromARGB(255, 170, 124, 10)),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -133,7 +133,7 @@ class LoginPageState extends State<LoginPage> {
                             },
                             child: const Text(
                               'Forgot Password?',
-                              style: TextStyle(color: Color(0xFFFB8C00)),
+                              style: TextStyle(color: Color.fromARGB(255, 170, 124, 10)),
                             ),
                           ),
                         ],
@@ -143,7 +143,7 @@ class LoginPageState extends State<LoginPage> {
                       if (viewModel.errorMessage != null)
                         Text(
                           viewModel.errorMessage!,
-                          style: const TextStyle(color: Color(0xFFE65100)),
+                          style: const TextStyle(color: Color.fromARGB(255, 184, 134, 11)),
                         ),
                       const SizedBox(height: 0),
                       // Log In Button
@@ -157,7 +157,7 @@ class LoginPageState extends State<LoginPage> {
                               },
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(double.infinity, 55),
-                          backgroundColor: const Color(0xFFFB8C00),
+                          backgroundColor: const Color.fromARGB(255, 184, 134, 11),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -176,7 +176,7 @@ class LoginPageState extends State<LoginPage> {
                         child: const Text.rich(
                           TextSpan(
                             text: 'Don’t have an account? ',
-                            style: TextStyle(fontSize: 16, color: Color(0xFFFB8C00)),
+                            style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 184, 134, 11)),
                             children: [
                               TextSpan(
                                 text: 'Sign Up',

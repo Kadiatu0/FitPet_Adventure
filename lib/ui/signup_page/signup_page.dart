@@ -28,7 +28,7 @@ class SignupPageState extends State<SignupPage> {
     final double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF3E0), // Light Beige Background
+      backgroundColor: const Color.fromARGB(255, 246, 229, 178), // Light Beige Background
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         toolbarHeight: 50,
@@ -36,7 +36,7 @@ class SignupPageState extends State<SignupPage> {
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new, 
-            color: Color.fromARGB(255, 243, 162, 91),
+            color: Color.fromARGB(255, 160, 117, 9),
             size: 28, // size increases boldness of icon 
           ),
           onPressed: () => Navigator.pop(context),
@@ -52,11 +52,11 @@ class SignupPageState extends State<SignupPage> {
               width: 250, 
               height: 200,
               decoration: BoxDecoration(
-                color: Colors.orange.shade700, 
+                color: Color.fromARGB(255, 170, 124, 10), 
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: const Color.fromARGB(96, 222, 170, 130),
+                    color: const Color.fromARGB(95, 84, 44, 14),
                     blurRadius: 12,
                     spreadRadius: 3,
                     offset: const Offset(0, 5),
@@ -89,7 +89,7 @@ class SignupPageState extends State<SignupPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                     border: Border.all(
-                      color: const Color.fromARGB(255, 230, 145, 55), // Solid orange border color
+                      color: const Color.fromARGB(255, 170, 124, 10), // Solid orange border color
                       width: 2, // Width of the border
                     ),
                   borderRadius: BorderRadius.circular(35),
@@ -111,7 +111,7 @@ class SignupPageState extends State<SignupPage> {
                         fontFamily: 'PressStart2P',
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 234, 144, 33),
+                        color: Color.fromARGB(255, 170, 124, 10),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -120,7 +120,7 @@ class SignupPageState extends State<SignupPage> {
                       controller: _nameController,
                       decoration: InputDecoration(
                         labelText: 'Name',
-                        prefixIcon: const Icon(Icons.person, color: Color(0xFFFB8C00)), 
+                        prefixIcon: const Icon(Icons.person, color: Color.fromARGB(255, 170, 124, 10)), 
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -132,7 +132,7 @@ class SignupPageState extends State<SignupPage> {
                       controller: _emailController,
                       decoration: InputDecoration(
                         labelText: 'Email',
-                        prefixIcon: const Icon(Icons.email, color: Color(0xFFFB8C00)),
+                        prefixIcon: const Icon(Icons.email, color: Color.fromARGB(255, 170, 124, 10)),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -145,7 +145,7 @@ class SignupPageState extends State<SignupPage> {
                       controller: _passwordController,
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        prefixIcon: const Icon(Icons.lock, color: Color(0xFFFB8C00)),
+                        prefixIcon: const Icon(Icons.lock, color: Color.fromARGB(255, 170, 124, 10)),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -158,7 +158,7 @@ class SignupPageState extends State<SignupPage> {
                     if (viewModel.errorMessage != null)
                       Text(
                         viewModel.errorMessage!,
-                        style: const TextStyle(color: Color(0xFFE65100)),
+                        style: const TextStyle(color: Color.fromARGB(255, 170, 124, 10)),
                       ),
                     const SizedBox(height: 20),
                     // Sign Up Button
@@ -173,7 +173,7 @@ class SignupPageState extends State<SignupPage> {
                             },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 55),
-                        backgroundColor: const Color(0xFFFB8C00), 
+                        backgroundColor: const Color.fromARGB(255, 170, 124, 10), 
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -192,7 +192,7 @@ class SignupPageState extends State<SignupPage> {
                       child: const Text.rich(
                         TextSpan(
                           text: 'Already have an account? ',
-                          style: TextStyle(fontSize: 16, color: Color(0xFFFB8C00)), 
+                          style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 170, 124, 10)), 
                           children: [
                             TextSpan(
                               text: 'Log In',

@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
         '/choose_pet': (context) => ChoosePetPage(),
       },
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 243, 162, 91)),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 246, 229, 178)),
       ),
     );
   }
@@ -60,7 +60,7 @@ class WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(255, 243, 224, 1),
+      backgroundColor: const Color.fromARGB(255, 246, 229, 178),
       body: Stack(
         children: [
           // Curved orange Background
@@ -69,11 +69,12 @@ class WelcomePage extends StatelessWidget {
             child: Container(
               height: MediaQuery.of(context).size.height * 0.55,
               width: double.infinity,
-              color: const Color.fromARGB(255, 234, 144, 33),
+              color: const Color.fromARGB(255, 184, 134, 11),
               child: const Center(
                 // group pet image
                 child: Image(
-                  image: AssetImage('lib/data/model/assets/group_pic.png'), 
+                  ///Users/helloworld/The_capstone_app/FitPet_Adventure/FitPet_Adventure/assets/group_pic.png
+                  image: AssetImage('assets/group_pic.png'), 
                   fit: BoxFit.contain, // Adjust how the image fits within the container
                 ),
               ),
@@ -97,7 +98,7 @@ class WelcomePage extends StatelessWidget {
                     Shadow(
                       offset: Offset(1.5, 1.5),
                       blurRadius: 3,
-                      color: Color.fromARGB(255, 243, 162, 91),
+                      color: Color.fromARGB(255, 184, 134, 11),
                     ),
                   ],
                 ),
@@ -135,7 +136,7 @@ class WelcomePage extends StatelessWidget {
                       },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
-                        backgroundColor: const Color.fromARGB(255, 234, 144, 33),
+                        backgroundColor: const Color.fromARGB(255, 184, 134, 11),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -155,12 +156,12 @@ class WelcomePage extends StatelessWidget {
                         backgroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(color: Color.fromARGB(255, 233, 155, 87)),
+                          side: BorderSide(color: Color.fromARGB(255, 184, 134, 11)),
                         ),
                       ),
                       child: const Text(
                         'Log In',
-                        style: TextStyle(fontSize: 18, color: Color.fromARGB(255, 233, 155, 87)),
+                        style: TextStyle(fontSize: 18, color: Color.fromARGB(255, 184, 134, 11)),
                       ),
                     ),
                     const SizedBox(height: 15),
@@ -172,7 +173,7 @@ class WelcomePage extends StatelessWidget {
                         'Forgot Password?',
                         style: TextStyle(
                           fontSize: 16,
-                          color: Color.fromARGB(255, 233, 155, 87),
+                          color: Color.fromARGB(255, 184, 134, 11),
                         ),
                       ),
                     ),

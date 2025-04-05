@@ -24,13 +24,13 @@ class ResetPasswordPageState extends State<ResetPasswordPage> {
     final double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF3E0),
+      backgroundColor: const Color.fromARGB(255, 246, 229, 178),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         toolbarHeight: 50,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFFF3A25B), size: 28),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color.fromARGB(255, 184, 134, 11), size: 28),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -44,11 +44,11 @@ class ResetPasswordPageState extends State<ResetPasswordPage> {
               width: 250,
               height: 200,
               decoration: BoxDecoration(
-                color: Colors.orange.shade700,
+                color: Color.fromARGB(255, 170, 124, 10),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: const Color.fromARGB(96, 222, 170, 130),
+                    color: const Color.fromARGB(95, 105, 57, 21),
                     blurRadius: 12,
                     spreadRadius: 3,
                     offset: const Offset(0, 5),
@@ -99,7 +99,7 @@ class ResetPasswordPageState extends State<ResetPasswordPage> {
                         fontFamily: 'PressStart2P',
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 234, 144, 33),
+                        color: Color.fromARGB(255, 170, 124, 10),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -108,7 +108,7 @@ class ResetPasswordPageState extends State<ResetPasswordPage> {
                       controller: _emailController,
                       decoration: InputDecoration(
                         labelText: 'Email',
-                        prefixIcon: const Icon(Icons.email, color: Color(0xFFFB8C00)),
+                        prefixIcon: const Icon(Icons.email, color: Color.fromARGB(255, 170, 124, 10)),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -121,7 +121,7 @@ class ResetPasswordPageState extends State<ResetPasswordPage> {
                     if (viewModel.errorMessage != null)
                       Text(
                         viewModel.errorMessage!,
-                        style: const TextStyle(color: Color(0xFFE65100)),
+                        style: const TextStyle(color: Color.fromARGB(255, 170, 124, 10)),
                       ),
                     const SizedBox(height: 20),
                     // Reset Password Button
@@ -134,7 +134,7 @@ class ResetPasswordPageState extends State<ResetPasswordPage> {
                             },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 55),
-                        backgroundColor: const Color(0xFFFB8C00),
+                        backgroundColor: const Color.fromARGB(255, 170, 124, 10),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
