@@ -10,7 +10,7 @@ class CommunityButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton(
       onPressed: () {
-        context.go(Routes.community);
+        context.go(Routes.communityMain);
       },
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.all(10.0),

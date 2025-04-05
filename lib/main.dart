@@ -12,6 +12,7 @@ Future<void> main() async {
   runApp(MultiProvider(providers: providers, child: const MainApp()));
 }
 
+
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 

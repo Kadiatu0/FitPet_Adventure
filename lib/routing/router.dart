@@ -13,6 +13,14 @@ import '../ui/cosmetics/widgets/cosmetics_screen.dart';
 import '../ui/core/ui/loading.dart';
 import 'routes.dart';
 
+import '../ui/community/widgets/community_main.dart';
+import '../ui/community/widgets/create_page.dart';
+import '../ui/community/widgets/browse_page.dart';
+import '../ui/community/widgets/joined_page.dart';
+import '../ui/community/widgets/community_detail_page.dart';
+
+
+
 // Delete these and replace with auth pages.
 import '../ui/temp_login/view_model/login_view_model.dart';
 import '../ui/temp_login/widgets/login_screen.dart';
@@ -50,10 +58,31 @@ GoRouter router(FirestoreRepository firestoreRepository) => GoRouter(
       },
     ),
     GoRoute(
-      path: Routes.community,
-      builder: (context, _) {
-        return CommunityScreen();
-      },
+      path: Routes.communityMain,
+      builder: (context, _) => const CommunityMain(),
+    ),
+    GoRoute(
+      path: Routes.create,
+      builder: (context, _) => const CreatePage(),
+    ),
+    GoRoute(
+      path: Routes.browse,
+      builder: (context, _) => const BrowsePage(),
+    ),
+    GoRoute(
+      path: Routes.joined,
+      builder: (context, _) => const JoinedPage(),
+    ),
+    GoRoute(
+      path: Routes.communityDetail,
+      builder: (context, _) => const CommunityDetailPage(
+      groupId: '',
+      groupName: '',
+      description: '',
+      type: '',
+      iconPath: '',
+      memberCount: 0,
+      ),
     ),
     GoRoute(
       path: Routes.cosmetics,
@@ -61,7 +90,6 @@ GoRouter router(FirestoreRepository firestoreRepository) => GoRouter(
         final viewModel = CosmeticsViewmodel(
           firestoreRepository: context.read(),
         );
-
         return CosmeticsScreen(viewModel: viewModel);
       },
     ),
@@ -70,19 +98,5 @@ GoRouter router(FirestoreRepository firestoreRepository) => GoRouter(
 
 /// Redirects if the user is not logged in or has not granted permissions.
 Future<String?> _redirect(BuildContext context, GoRouterState state) async {
-  // Replace with auth repository later on.
-  final isLoggedIn = context.read<FirestoreRepository>().isLoggedIn;
-  if (!isLoggedIn) return Routes.login;
-  final loggingIn = state.matchedLocation == Routes.login;
-
-  // If user is logged in but still on the login page, go to the homepage.
-  if (loggingIn) return Routes.home;
-
-  if (!(await Permission.activityRecognition.request().isGranted)) {
-    // User doesn't allow permission.
-    return Routes.loading;
-  }
-
-  // No need to redirect at all.
   return null;
 }
