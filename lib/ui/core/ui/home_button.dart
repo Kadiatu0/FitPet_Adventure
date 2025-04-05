@@ -22,14 +22,6 @@ class HomeButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: const [
           Icon(Icons.home_outlined, size: 24, color: Colors.black),
-          Text(
-            'Home',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
         ],
       ),
     );

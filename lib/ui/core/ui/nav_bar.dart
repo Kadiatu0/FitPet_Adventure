@@ -13,10 +13,10 @@ class NavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
+        padding: EdgeInsets.all(10.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 0.0,
+          spacing: 10.0,
           children: [
             Expanded(child: HomeButton()),
             Expanded(child: LeaderboardButton()),

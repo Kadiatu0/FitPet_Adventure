@@ -22,14 +22,6 @@ class LeaderboardButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: const [
           Icon(Icons.leaderboard_outlined, size: 24, color: Colors.black),
-          Text(
-            'Board',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
         ],
       ),
     );

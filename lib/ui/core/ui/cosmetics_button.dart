@@ -21,15 +21,7 @@ class CosmeticsButton extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: const [
-          Icon(Icons.settings_outlined, size: 24, color: Colors.black),
-          Text(
-            'Cosmetics',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Icon(Icons.edit_outlined, size: 24, color: Colors.black),
         ],
       ),
     );

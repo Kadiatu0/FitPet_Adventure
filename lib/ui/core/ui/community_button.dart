@@ -22,14 +22,6 @@ class CommunityButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: const [
           Icon(Icons.group_outlined, size: 24, color: Colors.black),
-          Text(
-            'Community',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
         ],
       ),
     );
