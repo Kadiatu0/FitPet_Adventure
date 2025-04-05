@@ -17,12 +17,13 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(routerConfig: router(context.read()));
+    return MaterialApp.router(
+      routerConfig: router(context.read()),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color.fromARGB(255, 246, 229, 178),
+        ),
+      ),
+    );
   }
 }
-
-/*
-Services and repositories are in config/dependencies.dart
-Viewmodel instantiation is in routing/router.dart
-Routes are in routing/routes.dart
-*/

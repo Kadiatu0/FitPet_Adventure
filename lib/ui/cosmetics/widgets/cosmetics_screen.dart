@@ -22,55 +22,70 @@ class CosmeticsScreen extends StatelessWidget {
     );
 
     return Scaffold(
+      backgroundColor: Color(0xFFF5D7A1),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (_, constraints) {
             // Square.
             final petSize = Size(constraints.maxWidth, constraints.maxWidth);
 
-            return ListenableBuilder(
-              listenable: viewModel,
-              builder: (_, _) {
-                return Column(
-                  children: [
-                    // Pet plus cosmetics.
-                    Stack(
-                      key: petKey,
-                      clipBehavior: Clip.none,
+            return FutureBuilder(
+              future: viewModel.petName,
+              builder: (_, snapshot) {
+                final petName = snapshot.data ?? '';
+
+                if (petName == '') {
+                  return SizedBox(width: petSize.width, height: petSize.height);
+                }
+
+                return ListenableBuilder(
+                  listenable: viewModel,
+                  builder: (_, _) {
+                    return Column(
                       children: [
-                        Image.asset(
-                          'assets/sky_grown.png',
-                          width: petSize.width,
-                          height: petSize.height,
-                          fit: BoxFit.fill,
-                          alignment: Alignment.topLeft,
+                        // Pet plus cosmetics.
+                        Stack(
+                          key: petKey,
+                          clipBehavior: Clip.none,
+                          children: [
+                            Image.asset(
+                              'assets/${petName}_egg.png',
+                              width: petSize.width,
+                              height: petSize.height,
+                              fit: BoxFit.fill,
+                              alignment: Alignment.topLeft,
+                            ),
+                            for (final cosmetic in viewModel.placedCosmetics)
+                              InteractiveCosmetic(
+                                viewModel: viewModel,
+                                cosmetic: cosmetic,
+                              ),
+                          ],
                         ),
-                        for (final cosmetic in viewModel.placedCosmetics)
-                          InteractiveCosmetic(
+
+                        // For padding.
+                        SizedBox(height: 20),
+
+                        // Cosemetics selection menu.
+                        Container(
+                          decoration: BoxDecoration(border: Border.all()),
+                          child: CosmeticPicker(
                             viewModel: viewModel,
-                            cosmetic: cosmetic,
+                            petKey: petKey,
+                            petSize: petSize,
                           ),
+                        ),
+
+                        // For padding.
+                        SizedBox(height: 20),
+
+                        // Resize, rotate, and flip.
+                        Expanded(
+                          child: Center(child: Modify(viewmodel: viewModel)),
+                        ),
                       ],
-                    ),
-
-                    // For padding.
-                    SizedBox(height: 20),
-
-                    // Cosemetics selection menu.
-                    Container(
-                      decoration: BoxDecoration(border: Border.all()),
-                      child: CosmeticPicker(
-                        viewModel: viewModel,
-                        petKey: petKey,
-                        petSize: petSize,
-                      ),
-                    ),
-
-                    // Resize, rotate, and flip.
-                    Expanded(
-                      child: Center(child: Modify(viewmodel: viewModel)),
-                    ),
-                  ],
+                    );
+                  },
                 );
               },
             );

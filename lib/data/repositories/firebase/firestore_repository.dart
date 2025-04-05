@@ -1,7 +1,4 @@
-import 'dart:convert' show jsonDecode;
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:cloud_firestore/cloud_firestore.dart' show CollectionReference;
 import 'package:intl/intl.dart';
 
@@ -11,16 +8,6 @@ import '../../../utils/execute_on_filter.dart';
 class FirestoreRepository extends ChangeNotifier {
   FirestoreRepository({required FirebaseService firebaseService})
     : _firebaseService = firebaseService;
-
-  /// Used for development with a test account
-  Future<void> loginWithTestAccount() async {
-    final jsonString = await rootBundle.loadString('assets/testaccount.json');
-    final account = jsonDecode(jsonString);
-    await _firebaseService.login(account);
-    notifyListeners();
-  }
-
-  bool get isLoggedIn => _firebaseService.isLoggedIn;
 
   /// Stored in field value 'total_steps'.
   Future<int> get totalSteps async {
@@ -40,6 +27,11 @@ class FirestoreRepository extends ChangeNotifier {
     final stepsDoc = _getCollection(filter).doc(formattedDate);
     final snapshot = await stepsDoc.get();
     return snapshot.data() ?? {};
+  }
+
+  Future<String> get petName async {
+    final snapshot = await _firebaseService.userDoc.get();
+    return snapshot.data()?['pet']['name'] ?? '';
   }
 
   /// Synchronously increments four values using keys:

@@ -11,6 +11,7 @@ class CosmeticsViewmodel extends ChangeNotifier {
   Cosmetic get selectedCosmetic => _selectedCosmetic;
   List<Cosmetic> get placedCosmetics => _placedCosmetics;
   List<String> get availableCosmetics => _availableCosmetics;
+  Future<String> get petName async => await _firestoreRepository.petName;
 
   void addCosmetic(
     String imagePath,
@@ -79,7 +80,7 @@ class CosmeticsViewmodel extends ChangeNotifier {
   }
 
   final FirestoreRepository _firestoreRepository;
-  final _cosmeticSize = Size(80.0, 80.0);
+  final _cosmeticSize = Size(100.0, 100.0);
   Cosmetic _selectedCosmetic = Cosmetic(imagePath: '');
   final List<Cosmetic> _placedCosmetics = [];
   final List<String> _availableCosmetics = [

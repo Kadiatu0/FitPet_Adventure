@@ -18,7 +18,7 @@ class CosmeticPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 120,
-      color: Colors.grey.shade200,
+      color: Color(0xFFFFF1D6),
 
       child: ListView.builder(
         scrollDirection: Axis.horizontal,

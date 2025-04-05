@@ -1,22 +1,7 @@
-import 'dart:developer' as developer;
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FirebaseService {
-  Future<void> login(account) async {
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: account['email'],
-        password: account['password'],
-      );
-    } catch (e) {
-      developer.log('Error logging in: $e');
-    }
-  }
-
-  bool get isLoggedIn => FirebaseAuth.instance.currentUser != null;
-
   DocumentReference<Map<String, dynamic>> get userDoc => FirebaseFirestore
       .instance
       .collection('users')

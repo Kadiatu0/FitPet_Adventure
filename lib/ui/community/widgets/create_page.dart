@@ -29,9 +29,9 @@ class _CreatePageState extends State<CreatePage> {
 
   // Available community icon paths
   final List<String> communityImages = [
-    'assets/earth_grown.png',
-    'assets/sky_grown.png',
-    'assets/space_grown.png',
+    'assets/earth_old.png',
+    'assets/sky_old.png',
+    'assets/space_old.png',
   ];
 
   // Handles validation and submission of community creation
@@ -122,7 +122,7 @@ class _CreatePageState extends State<CreatePage> {
                     children: [
                       const CircleAvatar(
                         radius: 40,
-                        backgroundImage: AssetImage('assets/water_grown.png'),
+                        backgroundImage: AssetImage('assets/water_old.png'),
                         backgroundColor: Colors.white,
                       ),
                       const SizedBox(height: 10),

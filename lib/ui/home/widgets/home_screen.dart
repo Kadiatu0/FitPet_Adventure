@@ -15,6 +15,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFF5D7A1),
       // Press spacebar to increment steps in debug mode.
       body: KeyboardListener(
         focusNode: FocusNode()..requestFocus(),
@@ -35,16 +36,21 @@ class HomeScreen extends StatelessWidget {
 
             return Column(
               children: [
-                Container(
-                  color: Color(0xFFFDFBD4),
-                  child: SafeArea(
-                    child: PetView(viewModel: viewModel, petSize: petSize),
-                  ),
+                SafeArea(
+                  child: PetView(viewModel: viewModel, petSize: petSize),
                 ),
 
-                const Divider(color: Colors.grey, thickness: 2.0, height: 1.0),
+                const Divider(
+                  color: Color(0xFF8E8971),
+                  thickness: 2.0,
+                  height: 0.0,
+                ),
                 StepsGraph(viewModel: viewModel),
-                const Divider(color: Colors.grey, thickness: 2.0, height: 10.0),
+                // const Divider(
+                //   color: Color(0xFF8E8971),
+                //   thickness: 2.0,
+                //   height: 0.0,
+                // ),
               ],
             );
           },

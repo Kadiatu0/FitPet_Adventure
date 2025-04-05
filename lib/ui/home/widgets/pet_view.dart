@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-
 import 'package:intl/intl.dart';
 
 import '../view_model/home_viewmodel.dart';
-import 'evolution_bar.dart';
 import '../../core/ui/display_cosmetic.dart';
+import 'evolution_bar.dart';
 
 class PetView extends StatelessWidget {
   final HomeViewModel viewModel;
@@ -56,23 +55,36 @@ class PetView extends StatelessWidget {
                       ),
 
                       // Image of the pet with cosmetics.
-                      Stack(
-                        children: [
-                          // Pull pet selection from database.
-                          Image.asset(
-                            'assets/sky_grown.png',
-                            width: petSize.width,
-                            height: petSize.height,
-                            fit: BoxFit.fill,
-                            alignment: Alignment.topLeft,
-                          ),
+                      FutureBuilder(
+                        future: viewModel.petName,
+                        builder: (_, snapshot) {
+                          final petName = snapshot.data ?? '';
 
-                          for (final cosmetic in viewModel.placedCosmetics)
-                            DisplayCosmetic(
-                              cosmetic: cosmetic,
-                              newPetSize: petSize,
-                            ),
-                        ],
+                          if (petName == '') {
+                            return SizedBox(
+                              width: petSize.width,
+                              height: petSize.height,
+                            );
+                          }
+
+                          return Stack(
+                            children: [
+                              Image.asset(
+                                'assets/${petName}_egg.png',
+                                width: petSize.width,
+                                height: petSize.height,
+                                fit: BoxFit.fill,
+                                alignment: Alignment.topLeft,
+                              ),
+
+                              for (final cosmetic in viewModel.placedCosmetics)
+                                DisplayCosmetic(
+                                  cosmetic: cosmetic,
+                                  newPetSize: petSize,
+                                ),
+                            ],
+                          );
+                        },
                       ),
 
                       const SizedBox(height: 8),

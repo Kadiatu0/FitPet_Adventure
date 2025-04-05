@@ -26,7 +26,7 @@ class User{
     //user bio set later in profile
     _bio = bio;
     _currentStepCount = currentStepCount;
-    _pet = Pet(0, "", "", "", 1, 0);
+    _pet = Pet("", "", "", "", 1, 0);
   }
 
   set setName(String name){

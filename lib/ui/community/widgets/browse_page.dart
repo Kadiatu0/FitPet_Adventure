@@ -18,7 +18,7 @@ class _BrowsePageState extends State<BrowsePage> {
 
   // List of placeholder community images (can be expanded)
   final List<String> communityImages = [
-    'assets/water_hatched.png',
+    'assets/water_baby.png',
   ];
 
   @override

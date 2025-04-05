@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'home_button.dart';
 import 'leaderboard_button.dart';
+import 'friends_button.dart';
 import 'community_button.dart';
 import 'cosmetics_button.dart';
 
@@ -12,13 +13,14 @@ class NavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.all(10.0),
+        padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 5.0,
+          spacing: 0.0,
           children: [
             Expanded(child: HomeButton()),
             Expanded(child: LeaderboardButton()),
+            Expanded(child: FriendsButton()),
             Expanded(child: CommunityButton()),
             Expanded(child: CosmeticsButton()),
           ],

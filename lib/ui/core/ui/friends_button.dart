@@ -3,14 +3,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../../routing/routes.dart';
 
-class LeaderboardButton extends StatelessWidget {
-  const LeaderboardButton({super.key});
+class FriendsButton extends StatelessWidget {
+  const FriendsButton({super.key});
 
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
       onPressed: () {
-        context.go(Routes.leaderboard);
+        context.go(Routes.friends);
       },
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.all(10.0),
@@ -21,9 +21,9 @@ class LeaderboardButton extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: const [
-          Icon(Icons.leaderboard_outlined, size: 24, color: Colors.black),
+          Icon(Icons.person_outline, size: 24, color: Colors.black),
           Text(
-            'Board',
+            'Friends',
             style: TextStyle(
               fontSize: 12,
               color: Colors.black,

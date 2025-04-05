@@ -3,14 +3,14 @@ import 'dart:collection';
 
 //A class that represents the virtual pets
 class Pet{
-  late final int _petId; //unique identifier of a user 
+  late final String _petId; //unique identifier of a user 
   String _petName = ""; //username must be unique
   String _petDescription = ""; //description of the pet
   String _petType = ""; //Water, Earth, Sky, Space
   int _evolutionLevel = 1; //current evolution level of the pet
   int _evolutionBarpoints = 0; //current evolution points of pet, only changed through steps of user
 
-  Pet(int petId, String petName, String petDescription, String petType, int evolutionLevel, int evolutionBarpoints){
+  Pet(String petId, String petName, String petDescription, String petType, int evolutionLevel, int evolutionBarpoints){
     _petId = petId;
     _petName = petName;
     _petDescription = petDescription;
@@ -28,11 +28,11 @@ class Pet{
     return _petName;
   }
 
-  set setPetId(int petId){
+  set setPetId(String petId){
     _petId = petId;
   }
   
-  int get getPetId{
+  String get getPetId{
     return _petId;
   }
 
