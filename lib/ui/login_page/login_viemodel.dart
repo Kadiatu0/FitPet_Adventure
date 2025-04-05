@@ -1,4 +1,5 @@
 // ignore_for_file: unused_import
+import 'package:cloud_firestore/cloud_firestore.dart' show FirebaseFirestore;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
@@ -15,7 +16,11 @@ class LoginViewModel extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isLoggedIn => FirebaseAuth.instance.currentUser != null;
 
-  Future<void> logIn(String email, String password, BuildContext context) async {
+  Future<void> logIn(
+    String email,
+    String password,
+    BuildContext context,
+  ) async {
     try {
       _isLoading = true;
       _errorMessage = null;
@@ -40,7 +45,11 @@ class LoginViewModel extends ChangeNotifier {
       // }
 
       // Temp just for testing.
-      if (user != null && context.mounted) context.push(Routes.choosePet);
+      if (user != null && (!(await _hasPet())) && context.mounted) {
+        context.push(Routes.choosePet);
+      } else if (context.mounted) {
+        context.push(Routes.home);
+      }
 
     } on FirebaseAuthException catch (e) {
       _errorMessage = e.message;
@@ -48,5 +57,20 @@ class LoginViewModel extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  /// Check if the user has choosen a pet.
+  Future<bool> _hasPet() async {
+    final userDoc = FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser?.uid);
+
+    final snapshot = await userDoc.get();
+    // Use the type because the user may choose to give a blank name.
+    final petType = snapshot.data()?['pet']['type'] ?? '';
+
+    if (petType == '') return false;
+
+    return true;
   }
 }
