@@ -26,10 +26,16 @@ class PetView extends StatelessWidget {
           child: Column(
             children: [
               // Pet name
-              Text(
-                // Pull pet name from database
-                'FitPet Name',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+              FutureBuilder(
+                future: viewModel.petName,
+                builder: (_, snapshot) {
+                  final petName = snapshot.data ?? '';
+
+                  return Text(
+                    petName,
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                  );
+                },
               ),
 
               // Pet level
@@ -56,11 +62,11 @@ class PetView extends StatelessWidget {
 
                       // Image of the pet with cosmetics.
                       FutureBuilder(
-                        future: viewModel.petName,
+                        future: viewModel.petType,
                         builder: (_, snapshot) {
-                          final petName = snapshot.data ?? '';
+                          final petType = snapshot.data ?? '';
 
-                          if (petName == '') {
+                          if (petType == '') {
                             return SizedBox(
                               width: petSize.width,
                               height: petSize.height,
@@ -70,7 +76,7 @@ class PetView extends StatelessWidget {
                           return Stack(
                             children: [
                               Image.asset(
-                                'assets/${petName}_egg.png',
+                                'assets/${petType}_egg.png',
                                 width: petSize.width,
                                 height: petSize.height,
                                 fit: BoxFit.fill,

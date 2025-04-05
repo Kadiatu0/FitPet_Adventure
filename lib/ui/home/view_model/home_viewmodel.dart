@@ -27,6 +27,7 @@ class HomeViewModel extends ChangeNotifier {
   Future<int> get average async => (await _calculateAverage()).toInt();
   Future<int> get best async => await _calculateBest();
   Future<String> get petName async => await _firestoreRepository.petName;
+  Future<String> get petType async => await _firestoreRepository.petType;
 
   /// Decrements day, month, or year.
   void previousPeriod() => _updatePeriod(false);

@@ -2,10 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FirebaseService {
-  DocumentReference<Map<String, dynamic>> get userDoc => FirebaseFirestore
-      .instance
-      .collection('users')
-      .doc(FirebaseAuth.instance.currentUser?.uid);
+  User? get user => FirebaseAuth.instance.currentUser;
+
+  DocumentReference<Map<String, dynamic>> get userDoc =>
+      FirebaseFirestore.instance.collection('users').doc(user?.uid);
 
   /// Returns documents accessed by the date format YYYY-MM-DD.
   CollectionReference<Map<String, dynamic>> get dailyCollection =>

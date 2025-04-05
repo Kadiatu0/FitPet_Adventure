@@ -20,7 +20,7 @@ class EvolutionBar extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxWidth = constraints.maxWidth;
-        var progress = (stepCount / stepGoal);
+        final progress = (stepCount / stepGoal); 
 
         return Container(
           alignment: Alignment.centerLeft,

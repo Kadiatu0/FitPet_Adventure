@@ -12,7 +12,7 @@ class FirestoreRepository extends ChangeNotifier {
   /// Stored in field value 'total_steps'.
   Future<int> get totalSteps async {
     final snapshot = await _firebaseService.userDoc.get();
-    return snapshot.data()?['total_steps'] ?? 0;
+    return snapshot.data()?['currentStepcount'] ?? 0;
   }
 
   /// Returns a step data map in the following formats based on [filter]:
@@ -32,6 +32,11 @@ class FirestoreRepository extends ChangeNotifier {
   Future<String> get petName async {
     final snapshot = await _firebaseService.userDoc.get();
     return snapshot.data()?['pet']['name'] ?? '';
+  }
+
+  Future<String> get petType async {
+    final snapshot = await _firebaseService.userDoc.get();
+    return snapshot.data()?['pet']['type'] ?? '';
   }
 
   /// Synchronously increments four values using keys:
@@ -120,7 +125,7 @@ class FirestoreRepository extends ChangeNotifier {
   Future<void> _incrementTotalSteps(int steps) async {
     await _firebaseService.increment(
       _firebaseService.userDoc,
-      'total_steps',
+      'currentStepcount',
       steps,
     );
   }
