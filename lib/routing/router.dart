@@ -1,19 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:permission_handler/permission_handler.dart';
+// import 'package:permission_handler/permission_handler.dart';
 
 import '../data/repositories/firebase/firestore_repository.dart';
 import '../ui/home/view_model/home_viewmodel.dart';
 import '../../ui/home/widgets/home_screen.dart';
 import '../ui/leaderboard/widgets/leaderboard_screen.dart';
-import '../ui/community/widgets/community_screen.dart';
+import '../ui/community/widgets/community_main.dart';
 import '../ui/cosmetics/view_model/cosmetics_viewmodel.dart';
 import '../ui/cosmetics/widgets/cosmetics_screen.dart';
 import '../ui/core/ui/loading.dart';
 import 'routes.dart';
 
-// Delete these and replace with auth pages.
+// Delete these and replace with auth later on.
 import '../ui/temp_login/view_model/login_view_model.dart';
 import '../ui/temp_login/widgets/login_screen.dart';
 
@@ -52,7 +52,7 @@ GoRouter router(FirestoreRepository firestoreRepository) => GoRouter(
     GoRoute(
       path: Routes.community,
       builder: (context, _) {
-        return CommunityScreen();
+        return CommunityMain();
       },
     ),
     GoRoute(
@@ -78,10 +78,11 @@ Future<String?> _redirect(BuildContext context, GoRouterState state) async {
   // If user is logged in but still on the login page, go to the homepage.
   if (loggingIn) return Routes.home;
 
-  if (!(await Permission.activityRecognition.request().isGranted)) {
-    // User doesn't allow permission.
-    // return Routes.loading;
-  }
+  // Don't need this for emulators.
+  // if (!(await Permission.activityRecognition.request().isGranted)) {
+  //   // User doesn't allow permission.
+  //   return Routes.loading;
+  // }
 
   // No need to redirect at all.
   return null;
