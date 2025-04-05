@@ -23,48 +23,56 @@ class CosmeticsScreen extends StatelessWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: ListenableBuilder(
-          listenable: viewModel,
-          builder: (_, _) {
-            return Column(
-              children: [
-                // Pet plus cosmetics.
-                Stack(
-                  key: petKey,
+        child: LayoutBuilder(
+          builder: (_, constraints) {
+            // Square.
+            final petSize = Size(constraints.maxWidth, constraints.maxWidth);
+
+            return ListenableBuilder(
+              listenable: viewModel,
+              builder: (_, _) {
+                return Column(
                   children: [
-                    Image.asset(
-                      'assets/pet.png',
-                      width: viewModel.petSize.width,
-                      height: viewModel.petSize.height,
-                      fit: BoxFit.fill,
-                      alignment: Alignment.topLeft,
+                    // Pet plus cosmetics.
+                    Stack(
+                      key: petKey,
+                      clipBehavior: Clip.none,
+                      children: [
+                        Image.asset(
+                          'assets/sky_grown.png',
+                          width: petSize.width,
+                          height: petSize.height,
+                          fit: BoxFit.fill,
+                          alignment: Alignment.topLeft,
+                        ),
+                        for (final cosmetic in viewModel.placedCosmetics)
+                          InteractiveCosmetic(
+                            viewModel: viewModel,
+                            cosmetic: cosmetic,
+                          ),
+                      ],
                     ),
-                    for (final cosmetic in viewModel.placedCosmetics)
-                      InteractiveCosmetic(
+
+                    // For padding.
+                    SizedBox(height: 20),
+
+                    // Cosemetics selection menu.
+                    Container(
+                      decoration: BoxDecoration(border: Border.all()),
+                      child: CosmeticPicker(
                         viewModel: viewModel,
-                        cosmetic: cosmetic,
+                        petKey: petKey,
+                        petSize: petSize,
                       ),
-                  ],
-                ),
-
-                // For padding.
-                SizedBox(height: 20),
-
-                // Cosemetics selection menu.
-                Container(
-                  decoration: BoxDecoration(border: Border.all()),
-                  child: CosmeticPicker(viewModel: viewModel, petKey: petKey),
-                ),
-
-                // Resize, rotate, and flip.
-                if (viewModel.selectedCosmetic.imagePath != '')
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [Modify(viewmodel: viewModel)],
                     ),
-                  ),
-              ],
+
+                    // Resize, rotate, and flip.
+                    Expanded(
+                      child: Center(child: Modify(viewmodel: viewModel)),
+                    ),
+                  ],
+                );
+              },
             );
           },
         ),

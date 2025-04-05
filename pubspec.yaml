@@ -29,9 +29,24 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/pet.png
+    # Pets
+    - assets/earth_egg.png
+    - assets/earth_hatched.png
+    - assets/earth_grown.png
+    - assets/sky_egg.png
+    - assets/sky_hatched.png
+    - assets/sky_grown.png
+    - assets/space_egg.png
+    - assets/space_hatched.png
+    - assets/space_grown.png
+    - assets/water_egg.png
+    - assets/water_hatched.png
+    - assets/water_grown.png
+
+    # Cosmetics
     # By https://mts1944.itch.io/christmas-hat
     - assets/hat.png
     # By https://xxashuraxx.itch.io/sword
     - assets/sword.png
+    
     - assets/testaccount.json

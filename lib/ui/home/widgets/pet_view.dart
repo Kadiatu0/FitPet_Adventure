@@ -8,8 +8,9 @@ import '../../core/ui/display_cosmetic.dart';
 
 class PetView extends StatelessWidget {
   final HomeViewModel viewModel;
+  final Size petSize;
 
-  const PetView({super.key, required this.viewModel});
+  const PetView({super.key, required this.viewModel, required this.petSize});
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +60,9 @@ class PetView extends StatelessWidget {
                         children: [
                           // Pull pet selection from database.
                           Image.asset(
-                            'assets/pet.png',
-                            width: viewModel.petSize.width,
-                            height: viewModel.petSize.height,
+                            'assets/sky_grown.png',
+                            width: petSize.width,
+                            height: petSize.height,
                             fit: BoxFit.fill,
                             alignment: Alignment.topLeft,
                           ),
@@ -69,7 +70,7 @@ class PetView extends StatelessWidget {
                           for (final cosmetic in viewModel.placedCosmetics)
                             DisplayCosmetic(
                               cosmetic: cosmetic,
-                              newPetSize: viewModel.petSize,
+                              newPetSize: petSize,
                             ),
                         ],
                       ),

@@ -5,11 +5,13 @@ import '../view_model/cosmetics_viewmodel.dart';
 class CosmeticPicker extends StatelessWidget {
   final CosmeticsViewmodel viewModel;
   final GlobalKey petKey;
+  final Size petSize;
 
   const CosmeticPicker({
     super.key,
     required this.viewModel,
     required this.petKey,
+    required this.petSize,
   });
 
   @override
@@ -23,8 +25,8 @@ class CosmeticPicker extends StatelessWidget {
         itemCount: viewModel.availableCosmetics.length,
         itemBuilder: (_, index) {
           final imagePath = viewModel.availableCosmetics[index];
-          final cosmeticWidth = 160.0;
-          final cosmeticHeight = 160.0;
+          final cosmeticWidth = viewModel.cosmeticSize.width;
+          final cosmeticHeight = viewModel.cosmeticSize.height;
 
           return Padding(
             padding: const EdgeInsets.all(8.0),
@@ -56,6 +58,8 @@ class CosmeticPicker extends StatelessWidget {
                     cosmeticWidth,
                     cosmeticHeight,
                     localOffset,
+                    petSize.width,
+                    petSize.height,
                   );
                   await viewModel.saveCosmetics();
                 }

@@ -7,7 +7,7 @@ class CosmeticsViewmodel extends ChangeNotifier {
   CosmeticsViewmodel({required FirestoreRepository firestoreRepository})
     : _firestoreRepository = firestoreRepository;
 
-  Size get petSize => _petSize;
+  Size get cosmeticSize => _cosmeticSize;
   Cosmetic get selectedCosmetic => _selectedCosmetic;
   List<Cosmetic> get placedCosmetics => _placedCosmetics;
   List<String> get availableCosmetics => _availableCosmetics;
@@ -17,14 +17,16 @@ class CosmeticsViewmodel extends ChangeNotifier {
     double width,
     double height,
     Offset position,
+    double petWidth,
+    double petHeight,
   ) {
     _selectedCosmetic = Cosmetic(
       imagePath: imagePath,
       width: width,
       height: height,
       position: position,
-      petWidth: petSize.width,
-      petHeight: petSize.height,
+      petWidth: petWidth,
+      petHeight: petHeight,
     );
 
     if (!_isWithinBounds(position)) return;
@@ -77,7 +79,7 @@ class CosmeticsViewmodel extends ChangeNotifier {
   }
 
   final FirestoreRepository _firestoreRepository;
-  final _petSize = Size(400.0, 400.0);
+  final _cosmeticSize = Size(80.0, 80.0);
   Cosmetic _selectedCosmetic = Cosmetic(imagePath: '');
   final List<Cosmetic> _placedCosmetics = [];
   final List<String> _availableCosmetics = [
@@ -86,11 +88,15 @@ class CosmeticsViewmodel extends ChangeNotifier {
   ];
 
   bool _isWithinBounds(Offset position) {
-    if (position.dx < -80.0 || position.dy < -80.0) return false;
+    // Halves for the center of the image and not the corner.
+    final halfWidth = (selectedCosmetic.width / 2);
+    final halfHeight = (selectedCosmetic.height / 2);
 
-    // Cosmetics have a fixed size of 80x80.
-    final rightBound = (selectedCosmetic.petWidth - 80.0);
-    final bottomBound = (selectedCosmetic.petHeight - 80.0);
+    // Bounds for the top and left sides.
+    if (position.dx < -halfWidth || position.dy < -halfHeight) return false;
+
+    final rightBound = (selectedCosmetic.petWidth - halfWidth);
+    final bottomBound = (selectedCosmetic.petHeight - halfHeight);
 
     if (position.dx > rightBound) return false;
     if (position.dy > bottomBound) return false;

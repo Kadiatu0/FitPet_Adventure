@@ -60,7 +60,11 @@ class FirestoreRepository extends ChangeNotifier {
 
   /// Increments field 'session_steps'.
   Future<void> incrementSessionSteps(int steps) async {
-    await _firebaseService.increment(_firebaseService.userDoc, 'session_steps', steps);
+    await _firebaseService.increment(
+      _firebaseService.userDoc,
+      'session_steps',
+      steps,
+    );
   }
 
   /// Resets field 'session_steps' to 0.
@@ -84,6 +88,11 @@ class FirestoreRepository extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  Future<String> get petSelection async {
+    // Pull user pet selection from firestore here.
+    return '';
   }
 
   /// Load the list of cosmetics from firestore.
@@ -117,7 +126,11 @@ class FirestoreRepository extends ChangeNotifier {
 
   /// Increments field 'total_steps'.
   Future<void> _incrementTotalSteps(int steps) async {
-    await _firebaseService.increment(_firebaseService.userDoc, 'total_steps', steps);
+    await _firebaseService.increment(
+      _firebaseService.userDoc,
+      'total_steps',
+      steps,
+    );
   }
 
   /// Increments field with the current hour.

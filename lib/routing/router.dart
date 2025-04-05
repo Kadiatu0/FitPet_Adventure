@@ -80,7 +80,7 @@ Future<String?> _redirect(BuildContext context, GoRouterState state) async {
 
   if (!(await Permission.activityRecognition.request().isGranted)) {
     // User doesn't allow permission.
-    return Routes.loading;
+    // return Routes.loading;
   }
 
   // No need to redirect at all.

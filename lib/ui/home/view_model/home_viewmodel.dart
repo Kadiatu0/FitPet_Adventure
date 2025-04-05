@@ -26,7 +26,6 @@ class HomeViewModel extends ChangeNotifier {
   Future<int> get petLevel async => ((await totalSteps) / 100).toInt();
   Future<int> get average async => (await _calculateAverage()).toInt();
   Future<int> get best async => await _calculateBest();
-  Size get petSize => _petSize;
 
   /// Decrements day, month, or year.
   void previousPeriod() => _updatePeriod(false);
@@ -136,7 +135,6 @@ class HomeViewModel extends ChangeNotifier {
   // Defaults to monthly.
   String _selectedFilter = 'Monthly';
   DateTime _selectedDate = DateTime.now();
-  final _petSize = Size(300, 300);
   final List<Cosmetic> _placedCosmetics = [];
 
   final _months = [
