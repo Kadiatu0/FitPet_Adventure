@@ -1,11 +1,9 @@
-// View a joined community after clicking on it
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/ui/nav_bar.dart';
 
-// Stateful widget to display detailed information about a joined community
+// Page for viewing the details of a joined community
 class CommunityViewPage extends StatefulWidget {
   final String groupId;
   final String groupName;
@@ -30,14 +28,17 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
   List<String> memberNames = [];
   bool isLoading = true;
   int memberCount = 0;
+  bool isMember = false;
+  String? currentUserId;
 
   @override
   void initState() {
     super.initState();
-    fetchMemberNames();
+    currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    fetchMemberNames(); // Fetch community members when page loads
   }
 
-  // Fetches member names from Firestore for the selected community
+  // Fetch and display names of users in this community
   Future<void> fetchMemberNames() async {
     try {
       final communityDoc = await FirebaseFirestore.instance
@@ -65,10 +66,42 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
 
       setState(() {
         memberNames = names;
+        isMember = memberIds.contains(currentUserId);
         isLoading = false;
       });
     } catch (e) {
       print('Error fetching community data: $e');
+    }
+  }
+
+  // Allow user to leave the community and update Firestore
+  Future<void> leaveCommunity() async {
+    if (currentUserId == null) return;
+
+    final communityRef = FirebaseFirestore.instance.collection('communities').doc(widget.groupId);
+    final userRef = FirebaseFirestore.instance.collection('users').doc(currentUserId);
+
+    try {
+      // Remove user from community's member list
+      await communityRef.update({
+        'members': FieldValue.arrayRemove([currentUserId]),
+        'memberCount': FieldValue.increment(-1), // Adjust stored member count
+      });
+
+      // Remove community from user's joined list
+      await userRef.update({
+        'joinedGroups': FieldValue.arrayRemove([widget.groupId]),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You left the community.')),
+        );
+      }
+
+      await fetchMemberNames(); // Refresh list after leaving
+    } catch (e) {
+      print('Error leaving community: $e');
     }
   }
 
@@ -87,7 +120,7 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  // Community header with icon and details
+                  // Display icon and general community info
                   Row(
                     children: [
                       CircleAvatar(
@@ -123,7 +156,7 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
 
                   const SizedBox(height: 20),
 
-                  // Community description
+                  // Display community description
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -133,9 +166,29 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
                   ),
 
                   const SizedBox(height: 20),
+
+                  // Button to leave the community if already a member
+                  if (isMember)
+                    ElevatedButton(
+                      onPressed: leaveCommunity,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Leave Community',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+
+                  const SizedBox(height: 20),
                   const Divider(),
 
-                  // List of community members
+                  // Display list of member names
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -144,6 +197,7 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
                     ),
                   ),
                   const SizedBox(height: 10),
+
                   Expanded(
                     child: ListView.builder(
                       itemCount: memberNames.length,
