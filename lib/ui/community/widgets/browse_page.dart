@@ -17,9 +17,11 @@ class _BrowsePageState extends State<BrowsePage> {
   String searchQuery = '';
 
   // List of placeholder community images (can be expanded)
-  final List<String> communityImages = [
-    'assets/water_baby.png',
-  ];
+final List<String> communityImages = [
+  'assets/earth_old.png',
+  'assets/sky_old.png',
+  'assets/space_old.png',
+];
 
   @override
   Widget build(BuildContext context) {

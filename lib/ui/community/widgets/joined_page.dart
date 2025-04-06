@@ -15,9 +15,11 @@ class JoinedPage extends StatefulWidget {
 
 class _JoinedPageState extends State<JoinedPage> {
   // List of icons/images for community representation
-  final List<String> communityImages = [
-    'assets/water_baby.png',
-  ];
+final List<String> communityImages = [
+  'assets/earth_old.png',
+  'assets/sky_old.png',
+  'assets/space_old.png',
+];
 
   // Future to hold the user's joined communities
   late Future<List<DocumentSnapshot>> _joinedCommunitiesFuture;

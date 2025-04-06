@@ -118,11 +118,15 @@ class _CreatePageState extends State<CreatePage> {
                   final userData = snapshot.data!.data() as Map<String, dynamic>;
                   final userName = userData['name'] ?? 'Unknown';
 
+                  final petMap = userData['pet'] as Map<String, dynamic>? ?? {};
+                  final petName = petMap['name'] ?? 'water';
+                  final petImagePath = 'assets/${petName}_egg.png';
+
                   return Column(
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         radius: 40,
-                        backgroundImage: AssetImage('assets/water_old.png'),
+                        backgroundImage: AssetImage(petImagePath),
                         backgroundColor: Colors.white,
                       ),
                       const SizedBox(height: 10),
@@ -194,7 +198,6 @@ class _CreatePageState extends State<CreatePage> {
                         );
                       }),
                     ),
-
                     const SizedBox(height: 15),
 
                     // Community name input
@@ -217,7 +220,6 @@ class _CreatePageState extends State<CreatePage> {
                         errorText: nameError,
                       ),
                     ),
-
                     const SizedBox(height: 15),
 
                     // Public or private community toggle
@@ -263,7 +265,6 @@ class _CreatePageState extends State<CreatePage> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 15),
 
                     // Community description input
@@ -286,7 +287,6 @@ class _CreatePageState extends State<CreatePage> {
                         contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                       ),
                     ),
-
                     const SizedBox(height: 20),
 
                     // Submit button
