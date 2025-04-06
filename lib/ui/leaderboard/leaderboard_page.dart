@@ -536,6 +536,9 @@ class LeaderboardScreenState extends State<LeaderboardScreen> {
 
         if (userName == null || userName.isEmpty) continue;
 
+        final totalMiles = (currentStepcount / 2000).toStringAsFixed(1);
+        final totalCalories = (currentStepcount * 0.04).toStringAsFixed(1);
+
         final leaderboardDoc =
             await FirebaseFirestore.instance
                 .collection('leaderboards')
@@ -550,15 +553,19 @@ class LeaderboardScreenState extends State<LeaderboardScreen> {
                 'userId': userId,
                 'userName': userName,
                 'totalSteps': currentStepcount,
-                'totalMiles': 0,
-                'totalCalories': 0,
+                'totalMiles': totalMiles,
+                'totalCalories': totalCalories,
                 'type': 'global',
               });
         } else {
           await FirebaseFirestore.instance
               .collection('leaderboards')
               .doc(userId)
-              .update({'totalSteps': currentStepcount});
+              .update({
+                'totalSteps': currentStepcount,
+                'totalMiles': totalMiles,
+                'totalCalories': totalCalories,
+              });
         }
       }
     } catch (e) {
