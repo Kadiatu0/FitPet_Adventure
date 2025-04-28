@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fitpet_adventure/ui/friends_page/friends_chat.dart';
 
 import '../core/ui/nav_bar.dart';
 
@@ -273,8 +274,6 @@ class FriendsPageState extends State<FriendsPage>
           itemBuilder: (context, index) {
             return _buildFriendItem(
               friends[index]["name"],
-              friends[index]["level"],
-              friends[index]["uid"],
               friends[index]["uid"],
             );
           },
@@ -283,24 +282,70 @@ class FriendsPageState extends State<FriendsPage>
     );
   }
 
-  // UI for a single friend entry with Remove Friend option
-  Widget _buildFriendItem(String name, int? level, String id, String userId) {
-    return Card(
-      color: const Color(0xFFFFF1D6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        leading: CircleAvatar(
-          radius: 25,
-          backgroundColor: const Color(0xFF8F794C),
-          child: const Text("😀", style: TextStyle(fontSize: 24)),
-        ),
-        title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-        trailing: IconButton(
-          icon: const Icon(Icons.remove_circle, color: Colors.red),
-          onPressed: () => removeFriend(currentUserId!, id),
-        ),
-      ),
+  // Helper function for building chatId between two users
+  String getChatId(String userId1, String userId2) {
+    return userId1.compareTo(userId2) < 0
+        ? '${userId1}_$userId2'
+        : '${userId2}_$userId1';
+  }
+
+  // UI for a single friend entry with Remove Friend option and chat feature
+  Widget _buildFriendItem(String name, String friendId) {
+    // Get chat ID based on current user and friend
+    final chatId = getChatId(currentUserId!, friendId);
+
+    return StreamBuilder<QuerySnapshot>(
+      stream:
+          FirebaseFirestore.instance
+              .collection('chats')
+              .doc(chatId)
+              .collection('messages')
+              .snapshots(), // Removed the unread filter
+      builder: (context, snapshot) {
+        // Handling loading and errors
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text("Error loading chat: ${snapshot.error}"));
+        }
+
+        return Card(
+          color: const Color(0xFFFFF1D6),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: ListTile(
+            onTap: () {
+              // Navigate to the chat page with this friend
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => FriendsChatPage(
+                        currentUserId: currentUserId!,
+                        friendUserId: friendId,
+                        friendName: name,
+                      ),
+                ),
+              );
+            },
+            leading: const CircleAvatar(
+              backgroundColor: Color(0xFF8F794C),
+              child: Text("😀", style: TextStyle(fontSize: 24)),
+            ),
+            title: Text(
+              name,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            trailing: IconButton(
+              icon: const Icon(Icons.remove_circle, color: Colors.red),
+              onPressed: () => removeFriend(currentUserId!, friendId),
+            ),
+          ),
+        );
+      },
     );
   }
 
