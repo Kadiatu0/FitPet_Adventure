@@ -21,16 +21,15 @@ class InteractiveCosmetic extends StatelessWidget {
 
       child: GestureDetector(
         onTap: () => viewModel.selectCosmetic(cosmetic),
-        onDoubleTap: () async {
+        onDoubleTap: () {
           viewModel.selectCosmetic(cosmetic);
           viewModel.removeCosmetic();
-          await viewModel.saveCosmetics();
         },
         onPanUpdate: (details) {
           viewModel.selectCosmetic(cosmetic);
           viewModel.updateCosmetic(position: cosmetic.position + details.delta);
         },
-        onPanEnd: (_) async => await viewModel.saveCosmetics(),
+        onPanEnd: (_) => viewModel.saveCosmetic(),
         child: Transform(
           transform:
               Matrix4.identity()

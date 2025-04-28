@@ -32,12 +32,32 @@ class FirebaseService {
     await doc.set({key: FieldValue.increment(amount)}, SetOptions(merge: true));
   }
 
+  /// Creates and increments a [key] value in a [Map] in a [doc].
+  Future<void> incrementMapValue(
+    DocumentReference<Map<String, dynamic>> doc,
+    String map,
+    String key,
+    int amount,
+  ) async {
+    await doc.set({
+      map: {key: FieldValue.increment(amount)},
+    }, SetOptions(merge: true));
+  }
+
   /// Creates and resets a [key] value in a [doc].
   Future<void> reset(
     DocumentReference<Map<String, dynamic>> doc,
     String key,
   ) async {
     await doc.set({key: 0}, SetOptions(merge: true));
+  }
+
+  /// Deletes a document with a [docName] from a [collection].
+  Future<void> deleteDoc(
+    CollectionReference<Map<String, dynamic>> collection,
+    String docName,
+  ) async {
+    await collection.doc(docName).delete();
   }
 
   /// Deletes all documents in a [collection].
@@ -54,14 +74,31 @@ class FirebaseService {
     await batch.commit();
   }
 
-  /// Adds a batch of documents to a [collection] containing a [value].
-  Future<void> batchAdd(
+  /// Adds a [doc] to a [collection].
+  /// Optionally provide a [uuid] to avoid duplicates.
+  Future<void> addDoc(
     CollectionReference<Map<String, dynamic>> collection,
-    value,
-  ) async {
+    Map<String, dynamic> doc, [
+    String? uuid,
+  ]) async {
+    final docRef = collection.doc(uuid);
+    await docRef.set(doc, SetOptions(merge: true));
+  }
+
+  /// Adds a batch of [docs] to a [collection].
+  /// Optionally provide a [uuid] to avoid duplicates.
+  Future<void> addDocBatch(
+    CollectionReference<Map<String, dynamic>> collection,
+    List<Map<String, dynamic>> docs, [
+    String? uuid,
+  ]) async {
     final batch = FirebaseFirestore.instance.batch();
-    final doc = collection.doc();
-    batch.set(doc, value);
+
+    for (final doc in docs) {
+      final docRef = collection.doc(uuid);
+      batch.set(docRef, doc, SetOptions(merge: true));
+    }
+
     await batch.commit();
   }
 }

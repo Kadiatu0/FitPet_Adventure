@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../view_model/cosmetics_viewmodel.dart';
 import '../../../ui/core/ui/nav_bar.dart';
@@ -8,19 +10,13 @@ import 'interactive_cosmetic.dart';
 
 class CosmeticsScreen extends StatelessWidget {
   final CosmeticsViewmodel viewModel;
-  // Used to uniquely identify each cosmetic.
+  // Used to find the render box of the pet.
   final GlobalKey petKey = GlobalKey();
 
   CosmeticsScreen({super.key, required this.viewModel});
 
   @override
   Widget build(BuildContext context) {
-    // Load cosmetics on entry.
-    FutureBuilder(
-      future: viewModel.loadCosmetics(),
-      builder: (_, _) => Container(),
-    );
-
     return Scaffold(
       backgroundColor: Color(0xFFF5D7A1),
       body: SafeArea(
@@ -30,13 +26,23 @@ class CosmeticsScreen extends StatelessWidget {
             final petSize = Size(constraints.maxWidth, constraints.maxWidth);
 
             return FutureBuilder(
-              future: viewModel.petName,
+              future: Future.wait([
+                viewModel.petName,
+                viewModel.petEvolutionName,
+                viewModel.loadCosmetics(),
+              ]),
               builder: (_, snapshot) {
-                final petName = snapshot.data ?? '';
+                if (!(snapshot.hasData)) {
+                  return SizedBox(width: petSize.width, height: petSize.height);
+                }
+
+                final petName = snapshot.data![0] as String;
 
                 if (petName == '') {
                   return SizedBox(width: petSize.width, height: petSize.height);
                 }
+
+                final petEvolutionName = snapshot.data![1] as String;
 
                 return ListenableBuilder(
                   listenable: viewModel,
@@ -46,16 +52,16 @@ class CosmeticsScreen extends StatelessWidget {
                         // Pet plus cosmetics.
                         Stack(
                           key: petKey,
-                          clipBehavior: Clip.none,
                           children: [
                             Image.asset(
-                              'assets/${petName}_egg.png',
+                              'assets/${petName}_$petEvolutionName.png',
                               width: petSize.width,
                               height: petSize.height,
                               fit: BoxFit.fill,
                               alignment: Alignment.topLeft,
                             ),
-                            for (final cosmetic in viewModel.placedCosmetics)
+                            for (final cosmetic
+                                in viewModel.placedCosmetics.values)
                               InteractiveCosmetic(
                                 viewModel: viewModel,
                                 cosmetic: cosmetic,
@@ -65,15 +71,51 @@ class CosmeticsScreen extends StatelessWidget {
 
                         // For padding.
                         SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () {
+                            showCupertinoDialog(
+                              barrierDismissible: true,
+                              context: context,
+                              builder: (_) {
+                                return CupertinoAlertDialog(
+                                  content: Text(
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15.0,
+                                    ),
+                                    'Clear All Cosmetics',
+                                  ),
+                                  actions: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          viewModel.removeAllCosmetics();
+                                          context.pop();
+                                        },
+                                        child: Text('Yes'),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: ElevatedButton(
+                                        onPressed: () => context.pop(),
+                                        child: Text('No'),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          child: Text('Clear'),
+                        ),
 
                         // Cosemetics selection menu.
-                        Container(
-                          decoration: BoxDecoration(border: Border.all()),
-                          child: CosmeticPicker(
-                            viewModel: viewModel,
-                            petKey: petKey,
-                            petSize: petSize,
-                          ),
+                        CosmeticPicker(
+                          viewModel: viewModel,
+                          petKey: petKey,
+                          petSize: petSize,
                         ),
 
                         // For padding.

@@ -13,12 +13,6 @@ class PetView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Load cosmetics on entry.
-    FutureBuilder(
-      future: viewModel.loadCosmetics(),
-      builder: (_, _) => Container(),
-    );
-
     return Column(
       children: [
         Padding(
@@ -45,26 +39,29 @@ class PetView extends StatelessWidget {
                   return Column(
                     children: [
                       // Pet level.
-                      FutureBuilder(
-                        future: viewModel.petLevel,
-                        builder: (_, snapshot) {
-                          final petLevel = snapshot.data ?? 0;
-
-                          return Text(
-                            'Level $petLevel',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          );
-                        },
-                      ),
+                      // Text(
+                      //   'Level ${viewModel.petLevel}',
+                      //   style: TextStyle(
+                      //     fontSize: 20,
+                      //     fontWeight: FontWeight.w500,
+                      //   ),
+                      // ),
 
                       // Image of the pet with cosmetics.
                       FutureBuilder(
-                        future: viewModel.petType,
+                        future: Future.wait([
+                          viewModel.petType,
+                          viewModel.loadCosmetics(),
+                        ]),
                         builder: (_, snapshot) {
-                          final petType = snapshot.data ?? '';
+                          if (!(snapshot.hasData)) {
+                            return SizedBox(
+                              width: petSize.width,
+                              height: petSize.height,
+                            );
+                          }
+
+                          final petType = snapshot.data![0] as String;
 
                           if (petType == '') {
                             return SizedBox(
@@ -73,17 +70,20 @@ class PetView extends StatelessWidget {
                             );
                           }
 
+                          final petEvolutionName = viewModel.petEvolutionName;
+
                           return Stack(
                             children: [
                               Image.asset(
-                                'assets/${petType}_egg.png',
+                                'assets/${petType}_$petEvolutionName.png',
                                 width: petSize.width,
                                 height: petSize.height,
                                 fit: BoxFit.fill,
                                 alignment: Alignment.topLeft,
                               ),
 
-                              for (final cosmetic in viewModel.placedCosmetics)
+                              for (final cosmetic
+                                  in viewModel.placedCosmetics.values)
                                 DisplayCosmetic(
                                   cosmetic: cosmetic,
                                   newPetSize: petSize,
@@ -96,15 +96,28 @@ class PetView extends StatelessWidget {
                       const SizedBox(height: 8),
 
                       // Evolution bar.
-                      FutureBuilder(
-                        future: viewModel.totalSteps,
-                        builder: (_, snapshot) {
-                          final totalSteps = snapshot.data ?? 0;
+                      Builder(
+                        builder: (_) {
+                          switch (viewModel.petEvolutionName) {
+                            case 'egg':
+                              return EvolutionBar(
+                                stepCount: viewModel.totalSteps,
+                                stepGoal: viewModel.stepGoal,
+                              );
+                            case 'baby':
+                              final barSteps =
+                                  viewModel.totalSteps % viewModel.stepGoal;
 
-                          return EvolutionBar(
-                            stepCount: totalSteps,
-                            stepGoal: 1000,
-                          );
+                              return EvolutionBar(
+                                stepCount: barSteps,
+                                stepGoal: viewModel.stepGoal,
+                              );
+                            default:
+                              return EvolutionBar(
+                                stepCount: viewModel.stepGoal,
+                                stepGoal: viewModel.stepGoal,
+                              );
+                          }
                         },
                       ),
                     ],
@@ -115,40 +128,39 @@ class PetView extends StatelessWidget {
               // Text below evolution bar.
               Padding(
                 padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ListenableBuilder(
-                      listenable: viewModel,
-                      builder: (_, _) {
-                        return FutureBuilder(
-                          future: viewModel.totalSteps,
-                          builder: (_, snapshot) {
-                            final totalSteps = NumberFormat.decimalPattern(
-                              'en_us',
-                            ).format(snapshot.data ?? 0);
+                child: ListenableBuilder(
+                  listenable: viewModel,
+                  builder: (_, _) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${NumberFormat.decimalPattern('en_us').format(viewModel.totalSteps)} steps',
+                          style: TextStyle(
+                            color: Color(0xFF8E8971),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
 
-                            return Text(
-                              '$totalSteps steps',
-                              style: TextStyle(
-                                color: Color(0xFF8E8971),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
-
-                    // Hardcoded goal value
-                    Text(
-                      'Goal 1,000 steps',
-                      style: TextStyle(
-                        color: Color(0xFF8E8971),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                        if (viewModel.petEvolutionName == 'old')
+                          Text(
+                            'Fully Evolved!',
+                            style: TextStyle(
+                              color: Color(0xFF8E8971),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        else
+                          Text(
+                            'Goal ${viewModel.stepGoal} steps',
+                            style: TextStyle(
+                              color: Color(0xFF8E8971),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ],
