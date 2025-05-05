@@ -15,6 +15,8 @@ import '../ui/login_page/login_page.dart';
 import '../ui/signup_page/signup_page.dart';
 import '../ui/rest_password/reset_password_page.dart';
 import '../ui/choose_pet_page/choose_pet_page.dart';
+import '../ui/change_email_page/change_email_page.dart';
+import '../ui/change_email_page/change_email_viewmodel.dart';
 import '../ui/leaderboard/leaderboard_page.dart';
 import '../ui/friends_page/friends_page.dart';
 import 'routes.dart';
@@ -47,6 +49,16 @@ GoRouter router(LoginViewModel loginViewModel) => GoRouter(
       builder: (_, _) {
         return ResetPasswordPage();
       },
+    ),
+    GoRoute(
+      path: Routes.changeEmail,
+      builder: (context, _) {
+        return ChangeNotifierProvider(
+          create: (_) => ChangeEmailViewModel(),
+          child: const ChangeEmailPage(),
+        );
+      },
+      redirect: _redirect,
     ),
     GoRoute(
       path: Routes.choosePet,

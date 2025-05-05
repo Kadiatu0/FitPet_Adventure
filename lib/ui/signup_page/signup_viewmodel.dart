@@ -4,27 +4,35 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
-import '../../domain/models/user.dart' as app_user;  
-import '../../domain/models/pet.dart' as user_pet; 
+import '../../domain/models/user.dart' as app_user;
+import '../../domain/models/pet.dart' as user_pet;
 import '../../routing/routes.dart';
 
 class SignupViewModel extends ChangeNotifier {
-  final FirebaseAuth _auth = FirebaseAuth.instance; //for authentication
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance; //for database
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  bool _isLoading = false; //check if process running
-  String? _errorMessage; //stores error messages
+  bool _isLoading = false;
+  String? _errorMessage;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
   Future<void> signUp(String name, String email, String password, BuildContext context) async {
-    try {
-      _isLoading = true; // Indicates signup has started
-      _errorMessage = null;
-      notifyListeners(); 
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please fill in all fields.')),
+        );
+      }
+      return;
+    }
 
-      // Check if the name already exists
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
       bool isNameUnique = await _isNameUnique(name);
       if (!isNameUnique) {
         if (context.mounted) {
@@ -34,48 +42,41 @@ class SignupViewModel extends ChangeNotifier {
         }
         _isLoading = false;
         notifyListeners();
-        return; // Return early if name is not unique
+        return;
       }
 
-      // Firebase signup
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // Verifies email before adding user to database
-      User? user = userCredential.user; // Auth user object contains the user UID, email, and verification status.
+      User? user = userCredential.user;
       if (user != null) {
         // Send email verification
         await user.sendEmailVerification();
 
-        // Track the time when email verification starts
         final DateTime startTime = DateTime.now();
-        // bool isVerified = false;
-        
-        // For testing.
+
+        // TEMP: Automatically allow verified during dev
         bool isVerified = true;
 
-        // Wait for the user to verify email, or timeout after 30 seconds
-        while (!isVerified && DateTime.now().difference(startTime).inSeconds < 30) {
-          await Future.delayed(Duration(seconds: 5)); // Wait 5 seconds before checking again
-          if (user != null) {await user.reload();} // Reload the user to check for updated verification status
-          user = _auth.currentUser; //latest user object
-          if (user != null) {isVerified = user.emailVerified;} // Check email verification status
-        }
+        // For production, use:
+        // bool isVerified = false;
+        // while (!isVerified && DateTime.now().difference(startTime).inSeconds < 30) {
+        //   await Future.delayed(Duration(seconds: 5));
+        //   await user.reload();
+        //   user = _auth.currentUser;
+        //   isVerified = user?.emailVerified ?? false;
+        // }
 
-        // If email is verified, navigate to the next page
         if (isVerified) {
           if (context.mounted) {
-            // Add user to Firestore after verification
             await addUserToFirestore(name, email);
-            // Navigate to choose_pet page after email is verified
             context.push(Routes.choosePet);
           }
         } else {
-          // Show message if verification failed after 30 seconds
           if (context.mounted) {
-            if (user != null) {await user.delete();} // Delete user if email not verified
+            await user.delete();
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Email verification took too long. Please try again.')),
             );
@@ -84,6 +85,19 @@ class SignupViewModel extends ChangeNotifier {
       }
     } on FirebaseAuthException catch (e) {
       _errorMessage = e.message;
+      print('FirebaseAuthException: ${e.code} - ${e.message}');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Signup failed: ${e.message}')),
+        );
+      }
+    } catch (e) {
+      print('Unexpected signup error: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('An unexpected error occurred. Please try again.')),
+        );
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -91,42 +105,51 @@ class SignupViewModel extends ChangeNotifier {
   }
 
   Future<bool> _isNameUnique(String name) async {
-    // Check Firestore to see if the name already exists
-    QuerySnapshot<Map<String, dynamic>> result = await _firestore
-        .collection('users')
-        .where('name', isEqualTo: name)
-        .get();
-
-    // If the result contains any documents, that means the name is already taken
-    return result.docs.isEmpty;
+    try {
+      QuerySnapshot<Map<String, dynamic>> result = await _firestore
+          .collection('users')
+          .where('name', isEqualTo: name)
+          .get();
+      return result.docs.isEmpty;
+    } catch (e) {
+      print('Error checking name uniqueness: $e');
+      return false;
+    }
   }
 
   Future<void> addUserToFirestore(String name, String email) async {
-    // check if a user is logged in before accessing uid
-    User? user = _auth.currentUser;
-    if (user != null) {
-      String uid = user.uid; 
-      app_user.User newUser = app_user.User(uid, name, email, "", 0);
-      user_pet.Pet newPet = user_pet.Pet("", "", "", "", 1, 0);
-      await _firestore.collection('users').doc(uid).set({
-        'uid': newUser.getuserId,
-        'name': newUser.getName,
-        'email': newUser.getEmail,
-        'bio': newUser.getBio,
-        'currentStepcount': newUser.getCurrentStepCount,
-        'friends': [],
-        'pet': {
-          "name": newPet.getPetName,
-          "type": newPet.getPetType,
-          "description": newPet.getPetDescription,
-          "level": newPet.getEvolutionLevel,
-          "evoultionBarPoints": newPet.getevolutionBarpoints,
-        },
-        'logs': [],
-        'joinedGroups': [],
-        'friendRequests': [],
-        'sentRequests': [],
-      });
+    try {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        String uid = user.uid;
+        app_user.User newUser = app_user.User(uid, name, email, "", 0);
+        user_pet.Pet newPet = user_pet.Pet("", "", "", "", 1, 0);
+
+        await _firestore.collection('users').doc(uid).set({
+          'uid': newUser.getuserId,
+          'name': newUser.getName,
+          'email': newUser.getEmail,
+          'bio': newUser.getBio,
+          'currentStepcount': newUser.getCurrentStepCount,
+          'friends': [],
+          'pet': {
+            "name": newPet.getPetName,
+            "type": newPet.getPetType,
+            "description": newPet.getPetDescription,
+            "level": newPet.getEvolutionLevel,
+            "evoultionBarPoints": newPet.getevolutionBarpoints,
+          },
+          'logs': [],
+          'joinedGroups': [],
+          'friendRequests': [],
+          'sentRequests': [],
+        });
+      }
+    } catch (e) {
+      print('Failed to add user to Firestore: $e');
+      if (_auth.currentUser != null) {
+        await _auth.currentUser!.delete();
+      }
     }
   }
 }

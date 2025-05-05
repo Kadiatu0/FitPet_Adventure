@@ -13,7 +13,12 @@
           "package_name": "com.example.fitpet_adventure"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "546624203315-14jmuo0dkql89a843v39ibln5kp263ra.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCB72wT4KXbGHVQUTn_ZLuXF5tGKuAoUww"
@@ -21,7 +26,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "546624203315-14jmuo0dkql89a843v39ibln5kp263ra.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "546624203315-rkpmhp92u1qbane8bdvbjdlf7eue7cfb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.fitpetAdventure"
+              }
+            }
+          ]
         }
       }
     }
