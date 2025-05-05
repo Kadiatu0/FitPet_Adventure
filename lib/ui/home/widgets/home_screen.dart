@@ -68,7 +68,7 @@ class HomeScreen extends StatelessWidget {
               title: const Text('Logout'),
               onTap: () async {
                 await FirebaseAuth.instance.signOut();
-                if (context.mounted) context.push(Routes.login);
+                if (context.mounted) context.push(Routes.home);
               },
             ),
           ],
