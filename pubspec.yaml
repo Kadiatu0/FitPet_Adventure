@@ -44,6 +44,8 @@ flutter:
     - assets/water_old.png
     - assets/egg_pic.png
     - assets/group_pic.png
+    - assets/signup.png
+    - assets/signup2.png
 
     # Cosmetics
     # By https://mts1944.itch.io/christmas-hat
