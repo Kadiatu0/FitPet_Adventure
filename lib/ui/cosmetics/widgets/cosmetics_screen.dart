@@ -27,7 +27,7 @@ class CosmeticsScreen extends StatelessWidget {
 
             return FutureBuilder(
               future: Future.wait([
-                viewModel.petName,
+                viewModel.petType,
                 viewModel.petEvolutionName,
                 viewModel.loadCosmetics(),
               ]),
@@ -36,9 +36,9 @@ class CosmeticsScreen extends StatelessWidget {
                   return SizedBox(width: petSize.width, height: petSize.height);
                 }
 
-                final petName = snapshot.data![0] as String;
+                final petType = snapshot.data![0] as String;
 
-                if (petName == '') {
+                if (petType == '') {
                   return SizedBox(width: petSize.width, height: petSize.height);
                 }
 
@@ -54,7 +54,7 @@ class CosmeticsScreen extends StatelessWidget {
                           key: petKey,
                           children: [
                             Image.asset(
-                              'assets/${petName}_$petEvolutionName.png',
+                              'assets/${petType}_$petEvolutionName.png',
                               width: petSize.width,
                               height: petSize.height,
                               fit: BoxFit.fill,
