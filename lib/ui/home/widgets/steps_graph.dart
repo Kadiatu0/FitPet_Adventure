@@ -135,87 +135,84 @@ class StepsGraph extends StatelessWidget {
                 return FutureBuilder(
                   future: Future.wait([viewModel.barGroups, viewModel.yMax]),
                   builder: (_, snapshot) {
-                    if (snapshot.hasData) {
-                      final barGroups =
-                          snapshot.data![0] as List<BarChartGroupData>;
-                      final yMax = snapshot.data![1] as double;
+                    if (!(snapshot.hasData)) return Container();
 
-                      return Expanded(
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: BarChart(
-                              BarChartData(
-                                barGroups: barGroups,
-                                titlesData: FlTitlesData(
-                                  leftTitles: AxisTitles(
-                                    sideTitles: SideTitles(showTitles: false),
-                                  ),
-                                  rightTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      maxIncluded: false,
-                                      reservedSize: 53,
-                                      getTitlesWidget: (value, meta) {
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                            left: 4.0,
-                                          ),
-                                          child: Text(
-                                            '${value.toInt()}',
-                                            style: const TextStyle(
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  bottomTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      reservedSize: 50,
-                                      getTitlesWidget: (value, meta) {
-                                        // Hours are 0-24 while days
-                                        // and months start from 1.
-                                        int intValue =
-                                            (viewModel.selectedFilter ==
-                                                    'Daily')
-                                                ? value.toInt()
-                                                : value.toInt() + 1;
+                    final barGroups =
+                        snapshot.data![0] as List<BarChartGroupData>;
+                    final yMax = snapshot.data![1] as double;
 
-                                        if (!viewModel.xInterval.contains(
-                                          intValue,
-                                        )) {
-                                          return Container();
-                                        }
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 4.0,
+                    return Expanded(
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: BarChart(
+                            BarChartData(
+                              barGroups: barGroups,
+                              titlesData: FlTitlesData(
+                                leftTitles: AxisTitles(
+                                  sideTitles: SideTitles(showTitles: false),
+                                ),
+                                rightTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    maxIncluded: false,
+                                    reservedSize: 53,
+                                    getTitlesWidget: (value, meta) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 4.0,
+                                        ),
+                                        child: Text(
+                                          '${value.toInt()}',
+                                          style: const TextStyle(
+                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                          child: Text('$intValue'),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  topTitles: AxisTitles(
-                                    sideTitles: SideTitles(showTitles: false),
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
-                                gridData: FlGridData(
-                                  show: true,
-                                  drawVerticalLine: false,
+                                bottomTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    reservedSize: 50,
+                                    getTitlesWidget: (value, meta) {
+                                      // Hours are 0-24 while days
+                                      // and months start from 1.
+                                      int intValue =
+                                          (viewModel.selectedFilter == 'Daily')
+                                              ? value.toInt()
+                                              : value.toInt() + 1;
+
+                                      if (!viewModel.xInterval.contains(
+                                        intValue,
+                                      )) {
+                                        return Container();
+                                      }
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                          top: 4.0,
+                                        ),
+                                        child: Text('$intValue'),
+                                      );
+                                    },
+                                  ),
                                 ),
-                                borderData: FlBorderData(show: false),
-                                maxY: yMax,
+                                topTitles: AxisTitles(
+                                  sideTitles: SideTitles(showTitles: false),
+                                ),
                               ),
+                              gridData: FlGridData(
+                                show: true,
+                                drawVerticalLine: false,
+                              ),
+                              borderData: FlBorderData(show: false),
+                              maxY: yMax,
                             ),
                           ),
                         ),
-                      );
-                    } else {
-                      return Container();
-                    }
+                      ),
+                    );
                   },
                 );
               },

@@ -5,8 +5,9 @@ import 'package:fl_chart/fl_chart.dart';
 
 import '../../../data/repositories/pedometer/pedometer_repository.dart';
 import '../../../data/repositories/firebase/firestore_repository.dart';
-import '../../../utils/execute_on_filter.dart';
 import '../../../domain/models/cosmetic.dart';
+import '../../../utils/execute_on_filter.dart';
+import '../../../utils/get_evolution_name.dart';
 
 class HomeViewModel extends ChangeNotifier {
   HomeViewModel({
@@ -22,12 +23,24 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   String get selectedFilter => _selectedFilter;
-  Future<int> get totalSteps async => await _firestoreRepository.totalSteps;
-  Future<int> get petLevel async => ((await totalSteps) / 100).toInt();
+
+  int get totalSteps => _totalSteps;
+  int get stepGoal => _stepGoal;
   Future<int> get average async => (await _calculateAverage()).toInt();
   Future<int> get best async => await _calculateBest();
+
+  int get petLevel => (totalSteps / 100).toInt();
   Future<String> get petName async => await _firestoreRepository.petName;
   Future<String> get petType async => await _firestoreRepository.petType;
+  String get petEvolutionName => getEvolutionName(_petEvolutionNum);
+
+  Future<void> loadSteps() async {
+    _totalSteps = await _firestoreRepository.totalSteps;
+  }
+
+  Future<void> loadEvolutionNum() async {
+    _petEvolutionNum = await _firestoreRepository.petEvolutionNum;
+  }
 
   /// Decrements day, month, or year.
   void previousPeriod() => _updatePeriod(false);
@@ -35,7 +48,7 @@ class HomeViewModel extends ChangeNotifier {
   // Increments day, month, or year.
   void nextPeriod() => _updatePeriod(true);
 
-  List<Cosmetic> get placedCosmetics => _placedCosmetics;
+  Map<String, Cosmetic> get placedCosmetics => _placedCosmetics;
 
   set selectedFilter(String value) {
     _selectedFilter = value;
@@ -43,8 +56,23 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   /// Used for development.
-  Future<void> incrementSteps() async {
-    await _firestoreRepository.incrementSteps(1);
+  void incrementSteps() {
+    ++_totalSteps;
+    _firestoreRepository.incrementSteps(1);
+
+    // No more evolutions.
+    if (_petEvolutionNum == (_totalEvolutionStages - 1)) {
+      notifyListeners();
+      return;
+    }
+
+    for (var i = 1; i < _totalEvolutionStages; ++i) {
+      if (totalSteps == (stepGoal * i)) {
+        ++_petEvolutionNum;
+        _firestoreRepository.incrementEvolution(1);
+      }
+    }
+
     notifyListeners();
   }
 
@@ -86,7 +114,7 @@ class HomeViewModel extends ChangeNotifier {
 
     // Return totalSteps where there's no data.
     // Prevents visual glitches.
-    if (bestSteps == 0) return (await totalSteps).toDouble();
+    if (bestSteps == 0) return totalSteps.toDouble();
 
     return bestSteps;
   }
@@ -119,25 +147,20 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   Future<void> loadCosmetics() async {
-    final data = await _firestoreRepository.loadCosmetics();
-    // Make sure list is empty.
-    _placedCosmetics.clear();
-
-    // Load each cosmetic into list.
-    for (final cosmeticMap in data) {
-      _placedCosmetics.add(Cosmetic.fromMap(cosmeticMap));
-    }
-
-    notifyListeners();
+    _placedCosmetics = await _firestoreRepository.loadCosmetics();
   }
 
   final PedometerRepository _pedometerRepository;
   final FirestoreRepository _firestoreRepository;
   late final StreamSubscription _stepCountSubscription;
+  int _totalSteps = 0;
+  final int _stepGoal = 10;
+  final int _totalEvolutionStages = 3;
+  int _petEvolutionNum = 0;
   // Defaults to monthly.
   String _selectedFilter = 'Monthly';
   DateTime _selectedDate = DateTime.now();
-  final List<Cosmetic> _placedCosmetics = [];
+  Map<String, Cosmetic> _placedCosmetics = {};
 
   final _months = [
     'January',
@@ -164,7 +187,7 @@ class HomeViewModel extends ChangeNotifier {
     // Increment in database to keep steps in sync.
     while ((await _firestoreRepository.sessionSteps) < sensorSteps) {
       await _firestoreRepository.incrementSessionSteps(1);
-      await _firestoreRepository.incrementSteps(1);
+      _firestoreRepository.incrementSteps(1);
       notifyListeners();
     }
   }

@@ -18,7 +18,7 @@ class CosmeticPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 120,
-      color: Color(0xFFFFF1D6),
+      decoration: BoxDecoration(border: Border.all(), color: Color(0xFFFFF1D6)),
 
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -27,18 +27,18 @@ class CosmeticPicker extends StatelessWidget {
           final imagePath = viewModel.availableCosmetics[index];
           final cosmeticWidth = viewModel.cosmeticSize.width;
           final cosmeticHeight = viewModel.cosmeticSize.height;
-
+      
           return Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.only(left: 30.0, right: 30.0),
             child: Draggable<String>(
               data: imagePath,
-
+      
               feedback: Image.asset(
                 imagePath,
                 width: cosmeticWidth,
                 height: cosmeticHeight,
               ),
-
+      
               childWhenDragging: Opacity(
                 opacity: 0.3,
                 child: Image.asset(
@@ -47,8 +47,8 @@ class CosmeticPicker extends StatelessWidget {
                   height: cosmeticHeight,
                 ),
               ),
-
-              onDraggableCanceled: (_, offset) async {
+      
+              onDraggableCanceled: (_, offset) {
                 final RenderBox? box =
                     petKey.currentContext?.findRenderObject() as RenderBox?;
                 if (box != null) {
@@ -61,10 +61,10 @@ class CosmeticPicker extends StatelessWidget {
                     petSize.width,
                     petSize.height,
                   );
-                  await viewModel.saveCosmetics();
+                  viewModel.saveCosmetic();
                 }
               },
-
+      
               child: Image.asset(
                 imagePath,
                 width: cosmeticWidth,

@@ -10,17 +10,14 @@ class EvolutionBar extends StatelessWidget {
     super.key,
     required this.stepCount,
     required this.stepGoal,
-  }) : assert(
-         stepCount >= 0 && stepCount <= stepGoal,
-         'Steps must be between 0 and $stepGoal',
-       );
+  });
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxWidth = constraints.maxWidth;
-        final progress = (stepCount / stepGoal); 
+        final progress = (stepCount / stepGoal);
 
         return Container(
           alignment: Alignment.centerLeft,

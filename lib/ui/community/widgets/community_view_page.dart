@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/ui/nav_bar.dart';
+import 'community_chat_page.dart';
 
-// Page for viewing the details of a joined community
 class CommunityViewPage extends StatefulWidget {
   final String groupId;
   final String groupName;
@@ -35,10 +35,9 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
   void initState() {
     super.initState();
     currentUserId = FirebaseAuth.instance.currentUser?.uid;
-    fetchMemberNames(); // Fetch community members when page loads
+    fetchMemberNames();
   }
 
-  // Fetch and display names of users in this community
   Future<void> fetchMemberNames() async {
     try {
       final communityDoc = await FirebaseFirestore.instance
@@ -74,7 +73,6 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
     }
   }
 
-  // Allow user to leave the community and update Firestore
   Future<void> leaveCommunity() async {
     if (currentUserId == null) return;
 
@@ -82,13 +80,11 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
     final userRef = FirebaseFirestore.instance.collection('users').doc(currentUserId);
 
     try {
-      // Remove user from community's member list
       await communityRef.update({
         'members': FieldValue.arrayRemove([currentUserId]),
-        'memberCount': FieldValue.increment(-1), // Adjust stored member count
+        'memberCount': FieldValue.increment(-1),
       });
 
-      // Remove community from user's joined list
       await userRef.update({
         'joinedGroups': FieldValue.arrayRemove([widget.groupId]),
       });
@@ -99,10 +95,22 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
         );
       }
 
-      await fetchMemberNames(); // Refresh list after leaving
+      await fetchMemberNames();
     } catch (e) {
       print('Error leaving community: $e');
     }
+  }
+
+  void openChat() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CommunityChatPage(
+          groupId: widget.groupId,
+          groupName: widget.groupName,
+        ),
+      ),
+    );
   }
 
   @override
@@ -120,7 +128,6 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  // Display icon and general community info
                   Row(
                     children: [
                       CircleAvatar(
@@ -156,7 +163,6 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
 
                   const SizedBox(height: 20),
 
-                  // Display community description
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -167,8 +173,23 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
 
                   const SizedBox(height: 20),
 
-                  // Button to leave the community if already a member
-                  if (isMember)
+                  if (isMember) ...[
+                    ElevatedButton(
+                      onPressed: openChat,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Open Group Chat',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
                     ElevatedButton(
                       onPressed: leaveCommunity,
                       style: ElevatedButton.styleFrom(
@@ -184,11 +205,11 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
+                  ],
 
                   const SizedBox(height: 20),
                   const Divider(),
 
-                  // Display list of member names
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
