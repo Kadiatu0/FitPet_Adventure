@@ -75,14 +75,14 @@ class _ChoosePetPageState extends State<ChoosePetPage> {
                       letterSpacing: 1.5,
                     ),
                   ),
-                  const SizedBox(height: 0),
+                  const SizedBox(height: 20),
                   
                   // Wiggly Border Box around the image
                   ClipPath(
                     clipper: WigglyBorderClipper(), // Custom Clipper
                     child: Container(
-                      height: 300,
-                      width: 300,
+                      height: 250,
+                      width: 250,
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           image: AssetImage('assets/${pet_name}egg.png'),
@@ -157,7 +157,7 @@ class _ChoosePetPageState extends State<ChoosePetPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 50),
+                  const SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: () async {
                       try {
