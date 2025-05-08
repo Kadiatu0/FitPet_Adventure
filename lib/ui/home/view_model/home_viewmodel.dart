@@ -289,6 +289,14 @@ class HomeViewModel extends ChangeNotifier {
     });
   }
 
+  String _backgroundImage = 'assets/back1.JPG'; // Default background
+  String get backgroundImage => _backgroundImage;
+
+  void setBackground(String path) {
+    _backgroundImage = path;
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     _stepCountSubscription.cancel();
