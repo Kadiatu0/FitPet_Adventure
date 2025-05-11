@@ -187,9 +187,15 @@ class _PetViewState extends State<PetView> with TickerProviderStateMixin {
                       const SizedBox(height: 30),
                       Builder(
                         builder: (_) {
-                          final stepCount = viewModel.petEvolutionName == 'baby'
-                              ? viewModel.totalSteps % viewModel.stepGoal
-                              : viewModel.totalSteps;
+                          if (viewModel.petEvolutionName == 'old') {
+                            return EvolutionBar(
+                            stepCount: viewModel.stepGoal,
+                            stepGoal: viewModel.stepGoal,
+                          );
+                          }
+
+                          final stepCount = viewModel.totalSteps 
+                          % viewModel.stepGoal;
 
                           return EvolutionBar(
                             stepCount: stepCount,

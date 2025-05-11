@@ -81,11 +81,11 @@ class HomeScreen extends StatelessWidget {
           return KeyboardListener(
             focusNode: FocusNode()..requestFocus(),
             autofocus: true,
-            onKeyEvent: (event) {
+            onKeyEvent: (event) async {
               if (kDebugMode &&
                   event is KeyDownEvent &&
                   event.logicalKey == LogicalKeyboardKey.space) {
-                viewModel.incrementSteps();
+                await viewModel.incrementSteps();
               }
             },
             child: LayoutBuilder(

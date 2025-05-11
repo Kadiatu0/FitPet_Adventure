@@ -56,7 +56,7 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   /// Used for development.
-  void incrementSteps() {
+  Future<void> incrementSteps() async {
     ++_totalSteps;
     _firestoreRepository.incrementSteps(1);
 
@@ -70,6 +70,7 @@ class HomeViewModel extends ChangeNotifier {
       if (totalSteps == (stepGoal * i)) {
         ++_petEvolutionNum;
         _firestoreRepository.incrementEvolution(1);
+        await _removeAllCosmetics();
       }
     }
 
@@ -287,6 +288,12 @@ class HomeViewModel extends ChangeNotifier {
         ],
       );
     });
+  }
+
+  Future<void> _removeAllCosmetics() async {
+    _placedCosmetics.clear();
+    await _firestoreRepository.deleteAllCosmetics();
+    notifyListeners();
   }
 
   String _backgroundImage = 'assets/back1.JPG'; // Default background
