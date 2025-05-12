@@ -56,7 +56,7 @@ class SignupPageState extends State<SignupPage> {
               height: 200,
               decoration: BoxDecoration(
                 image:DecorationImage(
-                   image: AssetImage("assets/group_pic.png"), fit: BoxFit.cover),
+                   image: AssetImage("assets/signup.png"), fit: BoxFit.cover),
                 color: Color.fromARGB(255, 170, 124, 10), 
                 shape: BoxShape.circle,
                 boxShadow: [
