@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'choose_pet_viewmodel.dart';
-
 import '../../routing/routes.dart';
 
 class ChoosePetPage extends StatefulWidget {
@@ -52,7 +51,7 @@ class _ChoosePetPageState extends State<ChoosePetPage> {
             }
 
             final pet = viewModel.pets[currentIndex];
-
+            String pet_name = pet.getPetName.toLowerCase().replaceAll(' ', '');
             return SafeArea(
               child: Column(
                 children: [
@@ -62,7 +61,7 @@ class _ChoosePetPageState extends State<ChoosePetPage> {
                       alignment: Alignment.topLeft,
                       child: IconButton(
                         icon: const Icon(Icons.arrow_back, size: 30, color: Color.fromARGB(255, 184, 134, 11)),
-                        onPressed: () => context.pop()
+                        onPressed: () => context.pop(),
                       ),
                     ),
                   ),
@@ -76,12 +75,23 @@ class _ChoosePetPageState extends State<ChoosePetPage> {
                       letterSpacing: 1.5,
                     ),
                   ),
-                  const SizedBox(height: 0),
-                  Image.asset(
-                    'assets/${pet.getPetType.toLowerCase()}_egg.png',
-                    height: 300,
-                    width: 300,
+                  const SizedBox(height: 20),
+                  
+                  // Wiggly Border Box around the image
+                  ClipPath(
+                    clipper: WigglyBorderClipper(), // Custom Clipper
+                    child: Container(
+                      height: 250,
+                      width: 250,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage('assets/${pet_name}egg.png'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
                   ),
+
                   const SizedBox(height: 0),
                   Column(
                     children: [
@@ -147,7 +157,7 @@ class _ChoosePetPageState extends State<ChoosePetPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 50),
+                  const SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: () async {
                       try {
@@ -185,5 +195,29 @@ class _ChoosePetPageState extends State<ChoosePetPage> {
         ),
       ),
     );
+  }
+}
+
+// Custom Clipper for Wiggly Border
+class WigglyBorderClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0, 0);
+
+    // Create wavy effect on the top edge
+    for (double i = 0; i < size.width; i++) {
+      path.lineTo(i, 10 * (i % 2 == 0 ? 1 : -1));
+    }
+
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) {
+    return false;
   }
 }

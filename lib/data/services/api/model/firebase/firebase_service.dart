@@ -44,6 +44,18 @@ class FirebaseService {
     }, SetOptions(merge: true));
   }
 
+  /// Creates and updates a [key] value with a [String] in a [Map] in a [doc].
+  Future<void> updateMapValue(
+    DocumentReference<Map<String, dynamic>> doc,
+    String map,
+    String key,
+    String value,
+  ) async {
+    await doc.set({
+      map: {key: value},
+    }, SetOptions(merge: true));
+  }
+
   /// Creates and resets a [key] value in a [doc].
   Future<void> reset(
     DocumentReference<Map<String, dynamic>> doc,

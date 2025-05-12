@@ -14,8 +14,14 @@ class CosmeticsViewmodel extends ChangeNotifier {
   List<String> get availableCosmetics => _availableCosmetics;
   Map<String, Cosmetic> get placedCosmetics => _placedCosmetics;
   Future<String> get petName async => await _firestoreRepository.petName;
+  Future<String> get petType async => await _firestoreRepository.petType;
   Future<String> get petEvolutionName async =>
       getEvolutionName(await _firestoreRepository.petEvolutionNum);
+
+  Future<void> updatePetName(String name) async {
+    await _firestoreRepository.updatePetName(name);
+    notifyListeners();
+  }
 
   void addCosmetic(
     String imagePath,

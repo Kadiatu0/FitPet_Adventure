@@ -66,6 +66,7 @@ class DefaultFirebaseOptions {
     projectId: 'fitpetadventure-4ce43',
     databaseURL: 'https://fitpetadventure-4ce43-default-rtdb.firebaseio.com',
     storageBucket: 'fitpetadventure-4ce43.firebasestorage.app',
+    iosClientId: '546624203315-rkpmhp92u1qbane8bdvbjdlf7eue7cfb.apps.googleusercontent.com',
     iosBundleId: 'com.example.fitpetAdventure',
   );
 
@@ -76,6 +77,7 @@ class DefaultFirebaseOptions {
     projectId: 'fitpetadventure-4ce43',
     databaseURL: 'https://fitpetadventure-4ce43-default-rtdb.firebaseio.com',
     storageBucket: 'fitpetadventure-4ce43.firebasestorage.app',
+    iosClientId: '546624203315-rkpmhp92u1qbane8bdvbjdlf7eue7cfb.apps.googleusercontent.com',
     iosBundleId: 'com.example.fitpetAdventure',
   );
 

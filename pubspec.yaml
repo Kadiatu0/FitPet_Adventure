@@ -37,6 +37,10 @@ flutter:
     - assets/sky_egg.png
     - assets/sky_baby.png
     - assets/sky_old.png
+    - assets/cosmicnightskyegg.png
+    - assets/floralfantasycreatureegg.png
+    - assets/nightskycloudsegg.png
+    - assets/underwaterkelpforestegg.png
     - assets/space_egg.png
     - assets/space_baby.png
     - assets/space_old.png
@@ -45,6 +49,8 @@ flutter:
     - assets/water_old.png
     - assets/egg_pic.png
     - assets/group_pic.png
+    - assets/signup.png
+    - assets/signup2.png
 
     # Cosmetics
     # By https://xxashuraxx.itch.io/sword
@@ -69,3 +75,19 @@ flutter:
     - assets/moonshine.png
     - assets/whiskey.png
     - assets/wine.png
+
+    # Pets-backround
+    - assets/back1.JPG
+    - assets/back2.JPG
+    - assets/back3.JPG
+    - assets/back4.JPG
+    - assets/back5.JPG
+    - assets/back6.JPG
+    - assets/back7.JPG
+    - assets/back8.JPG
+    - assets/back9.JPG
+    - assets/back10.JPG
+    - assets/back11.JPG
+    - assets/back12.JPG
+    - assets/back13.JPG
+

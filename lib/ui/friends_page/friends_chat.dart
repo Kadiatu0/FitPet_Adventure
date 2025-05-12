@@ -20,14 +20,12 @@ class FriendsChatPage extends StatefulWidget {
 class _FriendsChatPageState extends State<FriendsChatPage> {
   final TextEditingController _messageController = TextEditingController();
 
-  // Function to get unique chatId between two users
   String _getChatId(String userId1, String userId2) {
     return userId1.hashCode <= userId2.hashCode
         ? '${userId1}_$userId2'
         : '${userId2}_$userId1';
   }
 
-  // Function to send a message
   Future<void> _sendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
 
@@ -37,7 +35,6 @@ class _FriendsChatPageState extends State<FriendsChatPage> {
     final timestamp = Timestamp.now();
     final chatId = _getChatId(widget.currentUserId, widget.friendUserId);
 
-    // Add the new message to Firestore
     await FirebaseFirestore.instance
         .collection('chats')
         .doc(chatId)
@@ -47,12 +44,10 @@ class _FriendsChatPageState extends State<FriendsChatPage> {
           'receiverId': widget.friendUserId,
           'message': message,
           'timestamp': timestamp,
-          'read':
-              false, // Messages are initially marked as unread when first sent
+          'read': false,
         });
   }
 
-  // Function to delete a message
   Future<void> _deleteMessage(String chatId, String messageId) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -82,6 +77,21 @@ class _FriendsChatPageState extends State<FriendsChatPage> {
           .collection('messages')
           .doc(messageId)
           .delete();
+    }
+  }
+
+  String _formatTimestamp(Timestamp timestamp) {
+    final dateTime = timestamp.toDate();
+    final now = DateTime.now();
+
+    final hour = dateTime.hour % 12 == 0 ? 12 : dateTime.hour % 12;
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    final amPm = dateTime.hour >= 12 ? 'PM' : 'AM';
+
+    if (now.difference(dateTime).inDays == 0) {
+      return "$hour:$minute $amPm";
+    } else {
+      return "${dateTime.month}/${dateTime.day}/${dateTime.year} $hour:$minute $amPm";
     }
   }
 
@@ -145,9 +155,22 @@ class _FriendsChatPageState extends State<FriendsChatPage> {
                             constraints: BoxConstraints(
                               maxWidth: MediaQuery.of(context).size.width * 0.7,
                             ),
-                            child: Text(
-                              msg['message'],
-                              style: const TextStyle(fontSize: 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  msg['message'],
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _formatTimestamp(msg['timestamp']),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),

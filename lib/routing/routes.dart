@@ -9,5 +9,6 @@ abstract final class Routes {
   static const signup = '/signup';
   static const login = '/login';
   static const resetPassword = '/reset_password';
+  static const changeEmail = '/change_email';
   static const choosePet = '/choose_pet';
 }

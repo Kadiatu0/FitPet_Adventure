@@ -117,10 +117,9 @@ class _CreatePageState extends State<CreatePage> {
 
                   final userData = snapshot.data!.data() as Map<String, dynamic>;
                   final userName = userData['name'] ?? 'Unknown';
-
                   final petMap = userData['pet'] as Map<String, dynamic>? ?? {};
-                  final petName = petMap['name'] ?? 'water';
-                  final petImagePath = 'assets/${petName}_egg.png';
+                  final petType = petMap['type'] ?? 'water';
+                  final petImagePath = 'assets/${petType}_egg.png';
 
                   return Column(
                     children: [

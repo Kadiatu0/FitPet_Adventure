@@ -23,13 +23,15 @@ class WelcomePage extends StatelessWidget {
                 // group pet image
                 child: Image(
                   ///Users/helloworld/The_capstone_app/FitPet_Adventure/FitPet_Adventure/assets/group_pic.png
-                  image: AssetImage('assets/group_pic.png'), 
-                  fit: BoxFit.contain, // Adjust how the image fits within the container
+                  image: AssetImage('assets/signup.png'),
+                  fit:
+                      BoxFit
+                          .contain, // Adjust how the image fits within the container
                 ),
               ),
             ),
           ),
-          // "FitPet Adventure" text 
+          // "FitPet Adventure" text
           Positioned(
             top: 60, // top of image
             left: 0,
@@ -39,7 +41,7 @@ class WelcomePage extends StatelessWidget {
               child: const Text(
                 'FitPet Adventure',
                 style: TextStyle(
-                  fontFamily: 'PressStart2P', 
+                  fontFamily: 'PressStart2P',
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -85,7 +87,12 @@ class WelcomePage extends StatelessWidget {
                       },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
-                        backgroundColor: const Color.fromARGB(255, 184, 134, 11),
+                        backgroundColor: const Color.fromARGB(
+                          255,
+                          184,
+                          134,
+                          11,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -105,12 +112,17 @@ class WelcomePage extends StatelessWidget {
                         backgroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(color: Color.fromARGB(255, 184, 134, 11)),
+                          side: BorderSide(
+                            color: Color.fromARGB(255, 184, 134, 11),
+                          ),
                         ),
                       ),
                       child: const Text(
                         'Log In',
-                        style: TextStyle(fontSize: 18, color: Color.fromARGB(255, 184, 134, 11)),
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Color.fromARGB(255, 184, 134, 11),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 15),
@@ -144,7 +156,11 @@ class WelcomeClipper extends CustomClipper<Path> {
     Path path = Path();
     path.lineTo(0, size.height - 80);
     path.quadraticBezierTo(
-        size.width / 2, size.height, size.width, size.height - 80);
+      size.width / 2,
+      size.height,
+      size.width,
+      size.height - 80,
+    );
     path.lineTo(size.width, 0);
     path.close();
     return path;
