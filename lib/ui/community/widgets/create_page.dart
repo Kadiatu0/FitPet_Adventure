@@ -35,9 +35,10 @@ class _CreatePageState extends State<CreatePage> {
   ];
 
   // Handles validation and submission of community creation
-  void _createCommunity() {
+  Future<void> _createCommunity() async {
     final name = nameController.text.trim();
     final description = descriptionController.text.trim();
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
     // Validate the name input
     if (name.isEmpty) {
@@ -54,13 +55,26 @@ class _CreatePageState extends State<CreatePage> {
     setState(() => nameError = null);
 
     // Add the new community to Firestore
-    FirebaseFirestore.instance.collection('communities').add({
-      'groupName': name,
-      'groupDescription': description,
-      'type': isPublic ? 'Public' : 'Private',
-      'members': [],
-      'iconIndex': selectedIconIndex,
-    });
+final newCommunityRef = await FirebaseFirestore.instance
+    .collection('communities')
+    .add({
+  'groupName': name,
+  'groupDescription': description,
+  'type': isPublic ? 'Public' : 'Private',
+  'members': [currentUserId],
+  'adminId': currentUserId,
+  'iconIndex': selectedIconIndex,
+  'memberCount': 1,
+  'createdAt': FieldValue.serverTimestamp(),
+});
+
+// Add community ID to user's joinedGroups
+await FirebaseFirestore.instance
+    .collection('users')
+    .doc(currentUserId)
+    .update({
+  'joinedGroups': FieldValue.arrayUnion([newCommunityRef.id]),
+});
 
     // Show confirmation and navigate back
     final messenger = ScaffoldMessenger.of(context);

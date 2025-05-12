@@ -31,6 +31,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
   List<String> memberNames = [];
   bool isLoading = true;
   bool isMember = false;
+  bool hasRequested = false;
 
   @override
   void initState() {
@@ -38,7 +39,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
     fetchMemberNames();
   }
 
-  // Fetch names of members in the community and check if current user is already a member
+  // Fetch names of members in the community and check if current user is already a member or has requested
   Future<void> fetchMemberNames() async {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
@@ -49,6 +50,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
 
       final data = communityDoc.data();
       final List<dynamic> memberIds = data?['members'] ?? [];
+      final List<dynamic> requests = data?['joinRequests'] ?? [];
       final List<String> names = [];
 
       for (final id in memberIds) {
@@ -66,6 +68,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
       setState(() {
         memberNames = names;
         isMember = currentUser != null && memberIds.contains(currentUser.uid);
+        hasRequested = currentUser != null && requests.contains(currentUser.uid);
         isLoading = false;
       });
     } catch (e) {
@@ -120,6 +123,31 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Joined community!')),
     );
+  }
+
+  // Send join request for private community
+  Future<void> requestToJoin() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    final communityRef =
+        FirebaseFirestore.instance.collection('communities').doc(widget.groupId);
+
+    try {
+      await communityRef.update({
+        'joinRequests': FieldValue.arrayUnion([currentUser.uid]),
+      });
+
+      setState(() {
+        hasRequested = true;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Join request sent.')),
+      );
+    } catch (e) {
+      print('Error requesting to join community: $e');
+    }
   }
 
   @override
@@ -184,8 +212,24 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
 
                   const SizedBox(height: 20),
 
-                  // Show Join button for public communities only
-                  if (widget.type.toLowerCase() == 'public')
+                  // Join or Request button logic
+                  if (isMember)
+                    ElevatedButton(
+                      onPressed: null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFB0B0B0),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      ),
+                      child: const Text(
+                        'Already Joined',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  else if (widget.type.toLowerCase() == 'public')
                     ElevatedButton(
                       onPressed: joinCommunity,
                       style: ElevatedButton.styleFrom(
@@ -196,15 +240,31 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       ),
-                      child: Text(
-                        isMember ? 'Already Joined' : 'Join',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      child: const Text(
+                        'Join',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     )
-                  else
+                  else if (hasRequested)
                     const Text(
-                      'This Community is Private',
-                      style: TextStyle(fontSize: 16, color: Colors.red),
+                      'Join request pending...',
+                      style: TextStyle(fontSize: 16, color: Colors.blueGrey),
+                    )
+                  else
+                    ElevatedButton(
+                      onPressed: requestToJoin,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFD4A055),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      ),
+                      child: const Text(
+                        'Request to Join',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
                     ),
 
                   const SizedBox(height: 20),
