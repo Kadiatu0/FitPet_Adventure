@@ -55,6 +55,8 @@ class SignupPageState extends State<SignupPage> {
               width: 250, 
               height: 200,
               decoration: BoxDecoration(
+                image:DecorationImage(
+                   image: AssetImage("assets/group_pic.png"), fit: BoxFit.cover),
                 color: Color.fromARGB(255, 170, 124, 10), 
                 shape: BoxShape.circle,
                 boxShadow: [
@@ -66,18 +68,18 @@ class SignupPageState extends State<SignupPage> {
                   ),
                 ],
               ),
-              child: const Center(
-                child: Text(
-                  'Account\nCreation',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 24, 
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontFamily: 'PressStart2P', 
-                  ),
-                ),
-              ),
+              // child: const Center(
+              //   child: Text(
+              //     'Account\nCreation',
+              //     textAlign: TextAlign.center,
+              //     style: TextStyle(
+              //       fontSize: 24, 
+              //       fontWeight: FontWeight.bold,
+              //       color: Color.fromARGB(255, 170, 124, 10),
+              //       fontFamily: 'PressStart2P', 
+              //     ),
+              //   ),
+              // ),
             ),
           ),
           // Signup Form Box 

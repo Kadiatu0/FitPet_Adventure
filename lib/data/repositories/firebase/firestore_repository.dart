@@ -35,6 +35,15 @@ class FirestoreRepository extends ChangeNotifier {
     return snapshot.data()?['pet']['name'] ?? '';
   }
 
+  Future<void> updatePetName(String name) async {
+    await _firebaseService.updateMapValue(
+      _firebaseService.userDoc,
+      'pet',
+      'name',
+      name,
+    );
+  }
+
   Future<String> get petType async {
     final snapshot = await _firebaseService.userDoc.get();
     return snapshot.data()?['pet']['type'] ?? '';
@@ -106,8 +115,8 @@ class FirestoreRepository extends ChangeNotifier {
   }
 
   /// Deletes all cosmetics in firestore.
-  void deleteAllCosmetics() {
-    _firebaseService.clearCollection(_firebaseService.cosmeticsCollection);
+  Future<void> deleteAllCosmetics() async {
+    await _firebaseService.clearCollection(_firebaseService.cosmeticsCollection);
   }
 
   /// Load the [List] of cosmetics from firestore as a [Map].

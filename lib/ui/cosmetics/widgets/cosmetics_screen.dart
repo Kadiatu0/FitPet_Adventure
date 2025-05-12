@@ -1,12 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../view_model/cosmetics_viewmodel.dart';
 import '../../../ui/core/ui/nav_bar.dart';
 import 'modify.dart';
 import 'cosmetic_picker.dart';
 import 'interactive_cosmetic.dart';
+import 'clear_cosmetics_button.dart';
+import 'edit_pet_name_button.dart';
 
 class CosmeticsScreen extends StatelessWidget {
   final CosmeticsViewmodel viewModel;
@@ -49,6 +49,41 @@ class CosmeticsScreen extends StatelessWidget {
                   builder: (_, _) {
                     return Column(
                       children: [
+                        // To position the clear button on the left.
+                        Stack(
+                          children: [
+                            ClearCosmeticsButton(viewModel: viewModel),
+
+                            // Pet name and edit button.
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(width: 35.0),
+
+                                  FutureBuilder(
+                                    future: viewModel.petName,
+                                    builder: (_, snapshot) {
+                                      final petName = snapshot.data ?? '';
+
+                                      return Text(
+                                        petName,
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      );
+                                    },
+                                  ),
+
+                                  EditPetNameButton(viewModel: viewModel),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+
                         // Pet plus cosmetics.
                         Stack(
                           key: petKey,
@@ -71,45 +106,6 @@ class CosmeticsScreen extends StatelessWidget {
 
                         // For padding.
                         SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            showCupertinoDialog(
-                              barrierDismissible: true,
-                              context: context,
-                              builder: (_) {
-                                return CupertinoAlertDialog(
-                                  content: Text(
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15.0,
-                                    ),
-                                    'Clear All Cosmetics',
-                                  ),
-                                  actions: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          viewModel.removeAllCosmetics();
-                                          context.pop();
-                                        },
-                                        child: Text('Yes'),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: ElevatedButton(
-                                        onPressed: () => context.pop(),
-                                        child: Text('No'),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                          child: Text('Clear'),
-                        ),
 
                         // Cosemetics selection menu.
                         CosmeticPicker(

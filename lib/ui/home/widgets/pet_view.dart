@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-
 import '../view_model/home_viewmodel.dart';
 import '../../core/ui/display_cosmetic.dart';
 import 'evolution_bar.dart';
-
 
 class PetView extends StatefulWidget {
   final HomeViewModel viewModel;
@@ -22,6 +20,55 @@ class _PetViewState extends State<PetView> with TickerProviderStateMixin {
   bool _isJumping = false;
   bool _showHi = false;
 
+  // Function to show background picker
+  void _showBackgroundPicker() async {
+    final backgrounds = [
+      'assets/back1.JPG',
+      'assets/back2.JPG',
+      'assets/back3.JPG',
+      'assets/back4.JPG',
+      'assets/back5.JPG',
+      'assets/back6.JPG',
+      'assets/back7.JPG',
+      'assets/back8.JPG',
+      'assets/back9.JPG',
+      'assets/back10.JPG',
+      'assets/back11.JPG',
+      'assets/back12.JPG',
+      'assets/back13.JPG',
+    ];
+
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Choose Background'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: GridView.count(
+            shrinkWrap: true,
+            crossAxisCount: 2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            children: backgrounds.map((path) {
+              return GestureDetector(
+                onTap: () => Navigator.pop(context, path),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.asset(path, fit: BoxFit.cover),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+
+    if (selected != null) {
+      widget.viewModel.setBackground(selected);
+    }
+  }
+
+  // Trigger jump animation and show "Hi" message
   void _triggerJump() async {
     if (_isJumping) return;
 
@@ -32,13 +79,11 @@ class _PetViewState extends State<PetView> with TickerProviderStateMixin {
     });
 
     await Future.delayed(const Duration(milliseconds: 150));
-
     setState(() {
       _jumpOffset = 0;
     });
 
     await Future.delayed(const Duration(milliseconds: 500));
-
     setState(() {
       _showHi = false;
       _isJumping = false;
@@ -91,20 +136,34 @@ class _PetViewState extends State<PetView> with TickerProviderStateMixin {
                           final petEvolutionName = viewModel.petEvolutionName;
 
                           return GestureDetector(
-                            onTap: _triggerJump,
+                            onTap: _triggerJump, // Tapping on pet triggers jump
+                            onDoubleTap: _showBackgroundPicker, // Double tap for background picker
                             child: Stack(
+                              alignment: Alignment.center,
                               children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Image.asset(
+                                    viewModel.backgroundImage,
+                                    width: petSize.width * 2.5, // Increased size
+                                    height: petSize.height * 1, // Increased size
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                                 AnimatedContainer(
                                   duration: const Duration(milliseconds: 150),
                                   transform: Matrix4.translationValues(0, _jumpOffset, 0),
                                   child: Stack(
                                     children: [
-                                      Image.asset(
-                                        'assets/${petType}_$petEvolutionName.png',
-                                        width: petSize.width,
-                                        height: petSize.height,
-                                        fit: BoxFit.fill,
-                                        alignment: Alignment.topLeft,
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: Image.asset(
+                                          'assets/${petType}_$petEvolutionName.png',
+                                          width: petSize.width, // Increased size
+                                          height: petSize.height, // Increased size
+                                          fit: BoxFit.fill,
+                                          alignment: Alignment.topLeft,
+                                        ),
                                       ),
                                       for (final cosmetic in viewModel.placedCosmetics.values)
                                         DisplayCosmetic(
@@ -128,9 +187,15 @@ class _PetViewState extends State<PetView> with TickerProviderStateMixin {
                       const SizedBox(height: 30),
                       Builder(
                         builder: (_) {
-                          final stepCount = viewModel.petEvolutionName == 'baby'
-                              ? viewModel.totalSteps % viewModel.stepGoal
-                              : viewModel.totalSteps;
+                          if (viewModel.petEvolutionName == 'old') {
+                            return EvolutionBar(
+                            stepCount: viewModel.stepGoal,
+                            stepGoal: viewModel.stepGoal,
+                          );
+                          }
+
+                          final stepCount = viewModel.totalSteps 
+                          % viewModel.stepGoal;
 
                           return EvolutionBar(
                             stepCount: stepCount,
