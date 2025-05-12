@@ -45,6 +45,8 @@ class _FriendsChatPageState extends State<FriendsChatPage> {
           'message': message,
           'timestamp': timestamp,
           'read': false,
+          'reaction': null,
+          'edited': false,
         });
   }
 
@@ -95,6 +97,97 @@ class _FriendsChatPageState extends State<FriendsChatPage> {
     }
   }
 
+  void _showMessageOptions(DocumentSnapshot msg, String chatId) async {
+    final isMe = msg['senderId'] == widget.currentUserId;
+    final messageId = msg.id;
+
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      builder:
+          (_) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isMe)
+                ListTile(
+                  leading: const Icon(Icons.edit),
+                  title: const Text('Edit'),
+                  onTap: () => Navigator.pop(context, 'edit'),
+                ),
+              if (isMe)
+                ListTile(
+                  leading: const Icon(Icons.delete),
+                  title: const Text('Delete'),
+                  onTap: () => Navigator.pop(context, 'delete'),
+                ),
+              ListTile(
+                leading: const Icon(Icons.emoji_emotions),
+                title: const Text('React'),
+                onTap: () => Navigator.pop(context, 'react'),
+              ),
+            ],
+          ),
+    );
+
+    switch (selected) {
+      case 'edit':
+        final controller = TextEditingController(text: msg['message']);
+        final edited = await showDialog<String>(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Edit Message'),
+                content: TextField(controller: controller),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, controller.text),
+                    child: const Text('Save'),
+                  ),
+                ],
+              ),
+        );
+        if (edited != null && edited.trim().isNotEmpty) {
+          await FirebaseFirestore.instance
+              .collection('chats')
+              .doc(chatId)
+              .collection('messages')
+              .doc(messageId)
+              .update({'message': edited.trim(), 'edited': true});
+        }
+        break;
+      case 'delete':
+        _deleteMessage(chatId, messageId);
+        break;
+      case 'react':
+        final reaction = await showDialog<String>(
+          context: context,
+          builder:
+              (context) => SimpleDialog(
+                title: const Text('Pick a reaction'),
+                children: [
+                  for (var emoji in ['❤️', '😂', '👍', '😮', '😢'])
+                    SimpleDialogOption(
+                      child: Text(emoji, style: const TextStyle(fontSize: 24)),
+                      onPressed: () => Navigator.pop(context, emoji),
+                    ),
+                ],
+              ),
+        );
+        if (reaction != null) {
+          await FirebaseFirestore.instance
+              .collection('chats')
+              .doc(chatId)
+              .collection('messages')
+              .doc(messageId)
+              .update({'reaction': reaction});
+        }
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final chatId = _getChatId(widget.currentUserId, widget.friendUserId);
@@ -127,17 +220,39 @@ class _FriendsChatPageState extends State<FriendsChatPage> {
 
                 final messages = snapshot.data!.docs;
 
+                // Mark unread messages as read
+                for (var doc in messages) {
+                  final messageData = doc.data() as Map<String, dynamic>?;
+                  if (messageData != null &&
+                      messageData['receiverId'] == widget.currentUserId &&
+                      messageData['read'] == false) {
+                    doc.reference.update({'read': true});
+                  }
+                }
+
                 return ListView.builder(
                   reverse: true,
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final msg = messages[index];
-                    final isMe = msg['senderId'] == widget.currentUserId;
-                    final messageId = msg.id;
+
+                    // Safely cast the data to Map<String, dynamic>
+                    final messageData = msg.data() as Map<String, dynamic>?;
+                    if (messageData == null ||
+                        !messageData.containsKey('message') ||
+                        !messageData.containsKey('senderId')) {
+                      debugPrint('Invalid message skipped: ${msg.data()}');
+                      return const SizedBox.shrink();
+                    }
+
+                    final isMe =
+                        messageData['senderId'] == widget.currentUserId;
+                    final messageText = messageData['message'] ?? '';
+                    final timestamp =
+                        messageData['timestamp'] ?? Timestamp.now();
 
                     return GestureDetector(
-                      onLongPress:
-                          isMe ? () => _deleteMessage(chatId, messageId) : null,
+                      onTap: () => _showMessageOptions(msg, chatId),
                       child: Align(
                         alignment:
                             isMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -159,17 +274,42 @@ class _FriendsChatPageState extends State<FriendsChatPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  msg['message'],
+                                  messageText,
                                   style: const TextStyle(fontSize: 16),
                                 ),
                                 const SizedBox(height: 4),
-                                Text(
-                                  _formatTimestamp(msg['timestamp']),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      _formatTimestamp(timestamp),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                    if (isMe)
+                                      Icon(
+                                        messageData['read'] == true
+                                            ? Icons.done_all
+                                            : Icons.done,
+                                        size: 16,
+                                        color:
+                                            messageData['read'] == true
+                                                ? Colors.blue
+                                                : Colors.grey,
+                                      ),
+                                  ],
                                 ),
+                                if (messageData['reaction'] != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4.0),
+                                    child: Text(
+                                      messageData['reaction'],
+                                      style: const TextStyle(fontSize: 18),
+                                    ),
+                                  ),
                               ],
                             ),
                           ),
