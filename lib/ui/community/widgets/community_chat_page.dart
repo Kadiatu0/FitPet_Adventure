@@ -46,13 +46,24 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
     final message = _messageController.text.trim();
     _messageController.clear();
 
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user?.uid)
+        .get();
+
+    final pet = userDoc.data()?['pet'] as Map<String, dynamic>? ?? {};
+    final petName = pet['name'] ?? 'water';
+    final petLevel = pet['level'] ?? 1;
+
     await FirebaseFirestore.instance
         .collection('communityChats')
         .doc(widget.groupId)
         .collection('messages')
         .add({
       'senderId': user?.uid,
-      'senderName': userName ?? 'Unknown', // Save the name along with message
+      'senderName': userName ?? 'Unknown',
+      'petName': petName,
+      'petLevel': petLevel,
       'text': message,
       'timestamp': FieldValue.serverTimestamp(),
     });
@@ -94,44 +105,63 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
                     final msg = messages[index];
                     final isMe = msg['senderId'] == user?.uid;
 
-                    return Align(
-                      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(
-                          vertical: 4,
-                          horizontal: 12,
-                        ),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: isMe ? Colors.green[200] : Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.7,
+                final data = msg.data() as Map<String, dynamic>? ?? {};
+                final petName = data.containsKey('petName') ? data['petName'] : 'water';
+                final petLevel = data.containsKey('petLevel') ? data['petLevel'] : 1;
+
+                    String stage = 'egg';
+                    if (petLevel == 2) {
+                      stage = 'baby';
+                    } else if (petLevel == 3) {
+                      stage = 'old';
+                    }
+
+                    final petImagePath = 'assets/${petName}_$stage.png';
+
+                    return Row(
+                      mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (!isMe)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 12, right: 6),
+                            child: CircleAvatar(
+                              radius: 20,
+                              backgroundImage: AssetImage(petImagePath),
+                              backgroundColor: Colors.white,
+                            ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (!isMe)
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 4),
-                                  child: Text(
-                                    msg['senderName'] ?? 'Unknown',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
+                        Flexible(
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: isMe ? Colors.green[200] : Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (!isMe)
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 4),
+                                    child: Text(
+                                      msg['senderName'] ?? 'Unknown',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
                                     ),
                                   ),
+                                Text(
+                                  msg['text'] ?? '',
+                                  style: const TextStyle(fontSize: 16),
                                 ),
-                              Text(
-                                msg['text'] ?? '',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     );
                   },
                 );

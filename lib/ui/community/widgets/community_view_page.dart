@@ -25,7 +25,7 @@ class CommunityViewPage extends StatefulWidget {
 }
 
 class _CommunityViewPageState extends State<CommunityViewPage> {
-  List<String> memberNames = [];
+  List<Map<String, dynamic>> members = [];
   bool isLoading = true;
   int memberCount = 0;
   bool isMember = false;
@@ -35,10 +35,10 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
   void initState() {
     super.initState();
     currentUserId = FirebaseAuth.instance.currentUser?.uid;
-    fetchMemberNames();
+    fetchMembers();
   }
 
-  Future<void> fetchMemberNames() async {
+  Future<void> fetchMembers() async {
     try {
       final communityDoc = await FirebaseFirestore.instance
           .collection('communities')
@@ -47,9 +47,7 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
 
       final data = communityDoc.data();
       final List<dynamic> memberIds = data?['members'] ?? [];
-      memberCount = memberIds.length;
-
-      final List<String> names = [];
+      final List<Map<String, dynamic>> memberList = [];
 
       for (final id in memberIds) {
         final userDoc = await FirebaseFirestore.instance
@@ -59,13 +57,28 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
 
         if (userDoc.exists) {
           final userData = userDoc.data();
-          names.add(userData?['name'] ?? 'Unnamed');
+          final name = userData?['name'] ?? 'Unnamed';
+          final steps = userData?['currentStepcount'] ?? 0;
+
+          final petMap = userData?['pet'] as Map<String, dynamic>? ?? {};
+          final petName = petMap['name'] ?? 'water';
+          final petLevel = petMap['level'] ?? 1;
+
+          memberList.add({
+            'name': name,
+            'steps': steps,
+            'petName': petName,
+            'petLevel': petLevel,
+          });
         }
       }
 
+      memberList.sort((a, b) => b['steps'].compareTo(a['steps']));
+
       setState(() {
-        memberNames = names;
+        members = memberList;
         isMember = memberIds.contains(currentUserId);
+        memberCount = memberList.length;
         isLoading = false;
       });
     } catch (e) {
@@ -95,7 +108,7 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
         );
       }
 
-      await fetchMemberNames();
+      await fetchMembers();
     } catch (e) {
       print('Error leaving community: $e');
     }
@@ -221,11 +234,31 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
 
                   Expanded(
                     child: ListView.builder(
-                      itemCount: memberNames.length,
-                      itemBuilder: (context, index) => ListTile(
-                        leading: const Icon(Icons.person),
-                        title: Text(memberNames[index]),
-                      ),
+                      itemCount: members.length,
+                      itemBuilder: (context, index) {
+                        final member = members[index];
+                        final petName = member['petName'];
+                        final petLevel = member['petLevel'];
+
+                        String stage = 'egg';
+                        if (petLevel == 2) {
+                          stage = 'baby';
+                        } else if (petLevel == 3) {
+                          stage = 'old';
+                        }
+
+                        final petImagePath = 'assets/${petName}_$stage.png';
+
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage: AssetImage(petImagePath),
+                            backgroundColor: Colors.white,
+                            radius: 24,
+                          ),
+                          title: Text(member['name']),
+                          subtitle: Text('${member['steps']} steps'),
+                        );
+                      },
                     ),
                   ),
                 ],
