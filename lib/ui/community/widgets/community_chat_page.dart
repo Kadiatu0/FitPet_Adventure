@@ -78,7 +78,17 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
   String formatTimestamp(Timestamp? timestamp) {
     if (timestamp == null) return '';
     final dt = timestamp.toDate();
-    return DateFormat.jm().format(dt);
+    final now = DateTime.now();
+
+    final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final minute = dt.minute.toString().padLeft(2, '0');
+    final amPm = dt.hour >= 12 ? 'PM' : 'AM';
+
+    if (now.difference(dt).inDays == 0) {
+      return "$hour:$minute $amPm";
+    } else {
+      return "${dt.month}/${dt.day}/${dt.year} $hour:$minute $amPm";
+    }
   }
 
   @override
