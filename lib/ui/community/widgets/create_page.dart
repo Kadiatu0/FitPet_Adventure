@@ -140,7 +140,7 @@ await FirebaseFirestore.instance
                       CircleAvatar(
                         radius: 40,
                         backgroundImage: AssetImage(petImagePath),
-                        backgroundColor: Colors.white,
+                        backgroundColor: Colors.transparent,
                       ),
                       const SizedBox(height: 10),
                       Text(

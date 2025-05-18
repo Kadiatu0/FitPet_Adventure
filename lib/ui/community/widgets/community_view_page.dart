@@ -1,9 +1,12 @@
+// Viewing a joined community
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import '../../core/ui/nav_bar.dart';
 import 'community_chat_page.dart';
-import 'join_requests_page.dart'; // Import the new page
+import 'join_requests_page.dart';
 
 class CommunityViewPage extends StatefulWidget {
   final String groupId;
@@ -37,11 +40,11 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
   @override
   void initState() {
     super.initState();
-    currentUserId = FirebaseAuth.instance.currentUser?.uid;
-    fetchMembers();
+    currentUserId = FirebaseAuth.instance.currentUser?.uid; // Set current user ID
+    fetchMembers(); // Load members on init
   }
 
-  // Fetches community data including members and admin
+  // Fetch community info and determine admin/member status
   Future<void> fetchMembers() async {
     try {
       final communityDoc = await FirebaseFirestore.instance
@@ -51,15 +54,14 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
 
       final data = communityDoc.data();
       final List<dynamic> memberIds = data?['members'] ?? [];
+      adminUserId = data?['adminId'];
+      isAdmin = adminUserId == currentUserId;
+
       final List<Map<String, dynamic>> memberList = [];
-      final String? adminId = data?['adminId'];
 
+      // Loop through each member ID to get user data
       for (final id in memberIds) {
-        final userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(id)
-            .get();
-
+        final userDoc = await FirebaseFirestore.instance.collection('users').doc(id).get();
         if (userDoc.exists) {
           final userData = userDoc.data();
           final name = userData?['name'] ?? 'Unnamed';
@@ -79,102 +81,22 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
         }
       }
 
+      // Sort members by step count (descending)
       memberList.sort((a, b) => b['steps'].compareTo(a['steps']));
 
       setState(() {
         members = memberList;
         isMember = memberIds.contains(currentUserId);
         memberCount = memberList.length;
-        isAdmin = adminId == currentUserId;
-        adminUserId = adminId;
-        isLoading = false;
       });
     } catch (e) {
-      print('Error fetching community data: $e');
+      print('Error fetching members: $e');
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
-  // Prompt user before leaving the community
-  Future<void> leaveCommunity() async {
-    if (currentUserId == null) return;
-
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Leave Community'),
-        content: const Text('Are you sure you want to leave this community?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Leave')),
-        ],
-      ),
-    );
-
-    if (confirm != true) return;
-
-    try {
-      final communityRef = FirebaseFirestore.instance.collection('communities').doc(widget.groupId);
-      final userRef = FirebaseFirestore.instance.collection('users').doc(currentUserId);
-
-      await communityRef.update({
-        'members': FieldValue.arrayRemove([currentUserId]),
-        'memberCount': FieldValue.increment(-1),
-      });
-
-      await userRef.update({
-        'joinedGroups': FieldValue.arrayRemove([widget.groupId]),
-      });
-
-      if (mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('You left the community.')),
-        );
-      }
-    } catch (e) {
-      print('Error leaving community: $e');
-    }
-  }
-
-  // Prompt admin before deleting the community
-  Future<void> deleteCommunity() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Community'),
-        content: const Text('Are you sure you want to delete this community? This action cannot be undone.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
-        ],
-      ),
-    );
-
-    if (confirm != true) return;
-
-    try {
-      final communityRef = FirebaseFirestore.instance.collection('communities').doc(widget.groupId);
-
-      for (final member in members) {
-        final userId = member['userId'];
-        await FirebaseFirestore.instance.collection('users').doc(userId).update({
-          'joinedGroups': FieldValue.arrayRemove([widget.groupId]),
-        });
-      }
-
-      await communityRef.delete();
-
-      if (mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Community deleted.')),
-        );
-      }
-    } catch (e) {
-      print('Error deleting community: $e');
-    }
-  }
-
+  // Navigate to group chat screen
   void openChat() {
     Navigator.push(
       context,
@@ -187,16 +109,103 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
     );
   }
 
+  // Navigate to join requests screen (admin only)
   void viewJoinRequests() {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => JoinRequestsPage(
-        groupId: widget.groupId,
-        groupName: widget.groupName,
-      ),
+          groupId: widget.groupId,
+          groupName: widget.groupName,
+        ),
       ),
     );
+  }
+
+  // Confirm before leaving community
+  Future<void> confirmLeaveCommunity() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Leave Community'),
+        content: const Text('Are you sure you want to leave this community?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Leave')),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      final userRef = FirebaseFirestore.instance.collection('users').doc(currentUserId);
+      final groupRef = FirebaseFirestore.instance.collection('communities').doc(widget.groupId);
+
+      // Remove user from community and update Firestore
+      await groupRef.update({
+        'members': FieldValue.arrayRemove([currentUserId]),
+        'memberCount': FieldValue.increment(-1),
+      });
+
+      await userRef.update({
+        'joinedGroups': FieldValue.arrayRemove([widget.groupId]),
+      });
+
+      if (mounted) Navigator.pop(context);
+    }
+  }
+
+  // Confirm before deleting community (admin only)
+  Future<void> confirmDeleteCommunity() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Delete Community'),
+        content: const Text('Are you sure you want to delete this community for everyone?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      final groupRef = FirebaseFirestore.instance.collection('communities').doc(widget.groupId);
+      await groupRef.delete(); // Delete the community
+
+      if (mounted) Navigator.pop(context);
+    }
+  }
+
+  // Confirm before kicking a member (admin only)
+  Future<void> confirmKickMember(String userIdToKick) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Kick Member'),
+        content: const Text('Remove this member from the community?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Kick')),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      final userRef = FirebaseFirestore.instance.collection('users').doc(userIdToKick);
+      final groupRef = FirebaseFirestore.instance.collection('communities').doc(widget.groupId);
+
+      // Remove user from group in Firestore
+      await groupRef.update({
+        'members': FieldValue.arrayRemove([userIdToKick]),
+        'memberCount': FieldValue.increment(-1),
+      });
+
+      await userRef.update({
+        'joinedGroups': FieldValue.arrayRemove([widget.groupId]),
+      });
+
+      await fetchMembers(); // Refresh the member list
+    }
   }
 
   @override
@@ -209,17 +218,16 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
         foregroundColor: Colors.black,
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator()) // Show loading spinner
           : Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  // Community banner
                   Row(
                     children: [
                       CircleAvatar(
                         radius: 40,
-                        backgroundColor: Colors.white,
+                        backgroundColor: Colors.transparent,
                         backgroundImage: AssetImage(widget.iconPath),
                       ),
                       const SizedBox(width: 20),
@@ -235,18 +243,26 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
                       ),
                     ],
                   ),
-
+                  const SizedBox(height: 20),
+                  Align(alignment: Alignment.centerLeft, child: Text(widget.description, style: const TextStyle(fontSize: 16))),
                   const SizedBox(height: 20),
 
-                  // Description
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(widget.description, style: const TextStyle(fontSize: 16)),
-                  ),
+                  // Show join requests button if admin of a private group
+                  if (isAdmin && widget.type.toLowerCase() == 'private') ...[
+                    ElevatedButton(
+                      onPressed: viewJoinRequests,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFD4A055),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text('View Join Requests', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
 
-                  const SizedBox(height: 20),
-
-                  // Button options
+                  // Show chat and leave/delete buttons for members
                   if (isMember) ...[
                     ElevatedButton(
                       onPressed: openChat,
@@ -259,25 +275,8 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
                       child: const Text('Open Group Chat', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 10),
-
-                    // Show "View Join Requests" first for admin of private group
-                    if (isAdmin && widget.type.toLowerCase() == 'private') ...[
-                      ElevatedButton(
-                        onPressed: viewJoinRequests,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFD4A055),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        child: const Text('View Join Requests', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                      ),
-                      const SizedBox(height: 10),
-                    ],
-
-                    // Show "Delete" for admin, "Leave" for regular members
                     ElevatedButton(
-                      onPressed: isAdmin ? deleteCommunity : leaveCommunity,
+                      onPressed: isAdmin ? confirmDeleteCommunity : confirmLeaveCommunity,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFB54848),
                         foregroundColor: Colors.white,
@@ -294,12 +293,14 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
                   const SizedBox(height: 20),
                   const Divider(),
 
+                  // Member list heading
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Text('Members:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   ),
                   const SizedBox(height: 10),
 
+                  // List of all members
                   Expanded(
                     child: ListView.builder(
                       itemCount: members.length,
@@ -307,29 +308,37 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
                         final member = members[index];
                         final petName = member['petName'];
                         final petLevel = member['petLevel'];
+                        final memberId = member['userId'];
 
                         String stage = 'egg';
                         if (petLevel == 2) stage = 'baby';
-                        if (petLevel == 3) stage = 'old';
+                        else if (petLevel == 3) stage = 'old';
 
                         final petImagePath = 'assets/${petName}_$stage.png';
 
                         return ListTile(
                           leading: CircleAvatar(
                             backgroundImage: AssetImage(petImagePath),
-                            backgroundColor: Colors.white,
+                            backgroundColor: Colors.transparent,
                             radius: 24,
                           ),
                           title: Row(
                             children: [
                               Text(member['name']),
-                              if (member['userId'] == adminUserId) ...[
-                                const SizedBox(width: 6),
-                                const Icon(Icons.shield, size: 18, color: Colors.deepPurple),
-                              ],
+                              if (memberId == adminUserId)
+                                const Padding(
+                                  padding: EdgeInsets.only(left: 6),
+                                  child: Icon(Icons.shield, size: 18, color: Colors.deepPurple),
+                                ),
                             ],
                           ),
                           subtitle: Text('${member['steps']} steps'),
+                          trailing: isAdmin && memberId != currentUserId
+                              ? IconButton(
+                                  icon: const Icon(Icons.person_remove, color: Colors.red),
+                                  onPressed: () => confirmKickMember(memberId),
+                                )
+                              : null,
                         );
                       },
                     ),
@@ -337,7 +346,7 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
                 ],
               ),
             ),
-      bottomNavigationBar: NavBar(),
+      bottomNavigationBar: NavBar(), // App's bottom navigation bar
     );
   }
 }

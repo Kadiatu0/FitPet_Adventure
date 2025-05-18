@@ -1,6 +1,9 @@
+// Community chat
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class CommunityChatPage extends StatefulWidget {
   final String groupId;
@@ -17,16 +20,17 @@ class CommunityChatPage extends StatefulWidget {
 }
 
 class _CommunityChatPageState extends State<CommunityChatPage> {
-  final TextEditingController _messageController = TextEditingController();
-  final user = FirebaseAuth.instance.currentUser;
-  String? userName;
+  final TextEditingController _messageController = TextEditingController(); // Controller for the message input field
+  final user = FirebaseAuth.instance.currentUser; // Current Firebase authenticated user
+  String? userName; // Holds the current user's display name
 
   @override
   void initState() {
     super.initState();
-    fetchUserName();
+    fetchUserName(); // Fetch user's name when the widget initializes
   }
 
+  // Fetches the user's name from Firestore and updates the state
   Future<void> fetchUserName() async {
     final userDoc = await FirebaseFirestore.instance
         .collection('users')
@@ -40,6 +44,7 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
     }
   }
 
+  // Sends a message to the community chat Firestore collection
   Future<void> _sendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
 
@@ -65,8 +70,15 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
       'petName': petName,
       'petLevel': petLevel,
       'text': message,
-      'timestamp': FieldValue.serverTimestamp(),
+      'timestamp': FieldValue.serverTimestamp(), // Firestore will populate this with the current server time
     });
+  }
+
+  // Converts a Firestore timestamp to a readable time
+  String formatTimestamp(Timestamp? timestamp) {
+    if (timestamp == null) return '';
+    final dt = timestamp.toDate();
+    return DateFormat.jm().format(dt);
   }
 
   @override
@@ -77,7 +89,7 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
         title: Text(widget.groupName),
         leading: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context).pop(), // Close the chat view
         ),
       ),
       backgroundColor: const Color(0xFFF5D7A1),
@@ -90,25 +102,27 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
                   .doc(widget.groupId)
                   .collection('messages')
                   .orderBy('timestamp', descending: true)
-                  .snapshots(),
+                  .snapshots(), // Realtime stream of messages ordered by timestamp
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator()); // Loading state
                 }
 
                 final messages = snapshot.data!.docs;
 
                 return ListView.builder(
-                  reverse: true,
+                  reverse: true, // Show newest messages at the bottom
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final msg = messages[index];
-                    final isMe = msg['senderId'] == user?.uid;
+                    final isMe = msg['senderId'] == user?.uid; // Check if the message is from the current user
 
-                final data = msg.data() as Map<String, dynamic>? ?? {};
-                final petName = data.containsKey('petName') ? data['petName'] : 'water';
-                final petLevel = data.containsKey('petLevel') ? data['petLevel'] : 1;
+                    final data = msg.data() as Map<String, dynamic>? ?? {};
+                    final petName = data.containsKey('petName') ? data['petName'] : 'water';
+                    final petLevel = data.containsKey('petLevel') ? data['petLevel'] : 1;
+                    final timestamp = data['timestamp'] as Timestamp?; // Get message timestamp
 
+                    // Determine pet image stage based on level
                     String stage = 'egg';
                     if (petLevel == 2) {
                       stage = 'baby';
@@ -116,52 +130,71 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
                       stage = 'old';
                     }
 
-                    final petImagePath = 'assets/${petName}_$stage.png';
+                    final petImagePath = 'assets/${petName}_$stage.png'; // Construct image asset path
 
-                    return Row(
-                      mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (!isMe)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 12, right: 6),
-                            child: CircleAvatar(
-                              radius: 20,
-                              backgroundImage: AssetImage(petImagePath),
-                              backgroundColor: Colors.white,
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        left: isMe ? 60 : 12,
+                        right: isMe ? 12 : 60,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (!isMe)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 0, right: 6),
+                              child: CircleAvatar(
+                                radius: 20,
+                                backgroundImage: AssetImage(petImagePath), // Pet avatar
+                                backgroundColor: Colors.transparent,
+                              ),
                             ),
-                          ),
-                        Flexible(
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(vertical: 4),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: isMe ? Colors.green[200] : Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (!isMe)
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 4),
-                                    child: Text(
-                                      msg['senderName'] ?? 'Unknown',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
+                          Flexible(
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: MediaQuery.of(context).size.width * 0.7, // Limit bubble width
+                              ),
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: isMe ? Colors.green[200] : Colors.white, // Color based on sender
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (!isMe)
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 4),
+                                        child: Text(
+                                          msg['senderName'] ?? 'Unknown', // Sender name
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    Text(
+                                      msg['text'] ?? '', // Message text
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      formatTimestamp(timestamp), // time
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey[700],
                                       ),
                                     ),
-                                  ),
-                                Text(
-                                  msg['text'] ?? '',
-                                  style: const TextStyle(fontSize: 16),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     );
                   },
                 );
@@ -189,7 +222,7 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
                 const SizedBox(width: 8),
                 IconButton(
                   icon: const Icon(Icons.send, color: Colors.black),
-                  onPressed: _sendMessage,
+                  onPressed: _sendMessage, // Send message on press
                 ),
               ],
             ),

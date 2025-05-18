@@ -127,7 +127,7 @@ final List<String> communityImages = [
                     children: [
                       CircleAvatar(
                         radius: 30,
-                        backgroundColor: Colors.white,
+                        backgroundColor: Colors.transparent,
                         backgroundImage: AssetImage(iconPath),
                       ),
                       const SizedBox(width: 20),

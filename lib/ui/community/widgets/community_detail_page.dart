@@ -170,7 +170,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
                     children: [
                       CircleAvatar(
                         radius: 40,
-                        backgroundColor: Colors.white,
+                        backgroundColor: Colors.transparent,
                         backgroundImage: AssetImage(widget.iconPath),
                       ),
                       const SizedBox(width: 20),
