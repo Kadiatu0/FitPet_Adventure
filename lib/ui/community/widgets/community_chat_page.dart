@@ -71,6 +71,8 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
       'petLevel': petLevel,
       'text': message,
       'timestamp': FieldValue.serverTimestamp(), // Firestore will populate this with the current server time
+      'edited': false,
+      'reaction': null,
     });
   }
 
@@ -88,6 +90,95 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
       return "$hour:$minute $amPm";
     } else {
       return "${dt.month}/${dt.day}/${dt.year} $hour:$minute $amPm";
+    }
+  }
+
+  // Show edit, delete, react options
+  void _showMessageOptions(DocumentSnapshot msg, String groupId, String messageId) async {
+    final isMe = msg['senderId'] == user?.uid;
+
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      builder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isMe)
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text('Edit'),
+              onTap: () => Navigator.pop(context, 'edit'),
+            ),
+          if (isMe)
+            ListTile(
+              leading: const Icon(Icons.delete),
+              title: const Text('Delete'),
+              onTap: () => Navigator.pop(context, 'delete'),
+            ),
+          ListTile(
+            leading: const Icon(Icons.emoji_emotions),
+            title: const Text('React'),
+            onTap: () => Navigator.pop(context, 'react'),
+          ),
+        ],
+      ),
+    );
+
+    switch (selected) {
+      case 'edit':
+        final controller = TextEditingController(text: msg['text']);
+        final edited = await showDialog<String>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Edit Message'),
+            content: TextField(controller: controller),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+              TextButton(onPressed: () => Navigator.pop(context, controller.text), child: const Text('Save')),
+            ],
+          ),
+        );
+        if (edited != null && edited.trim().isNotEmpty) {
+          await FirebaseFirestore.instance
+              .collection('communityChats')
+              .doc(groupId)
+              .collection('messages')
+              .doc(messageId)
+              .update({'text': edited.trim(), 'edited': true});
+        }
+        break;
+
+      case 'delete':
+        await FirebaseFirestore.instance
+            .collection('communityChats')
+            .doc(groupId)
+            .collection('messages')
+            .doc(messageId)
+            .delete();
+        break;
+
+      case 'react':
+        final reaction = await showDialog<String>(
+          context: context,
+          builder: (context) => SimpleDialog(
+            title: const Text('Pick a reaction'),
+            children: [
+              for (var emoji in ['❤️', '😂', '👍', '😮', '😢'])
+                SimpleDialogOption(
+                  child: Text(emoji, style: const TextStyle(fontSize: 24)),
+                  onPressed: () => Navigator.pop(context, emoji),
+                ),
+            ],
+          ),
+        );
+        if (reaction != null) {
+          await FirebaseFirestore.instance
+              .collection('communityChats')
+              .doc(groupId)
+              .collection('messages')
+              .doc(messageId)
+              .update({'reaction': reaction});
+        }
+        break;
     }
   }
 
@@ -125,14 +216,15 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final msg = messages[index];
-                    final isMe = msg['senderId'] == user?.uid; // Check if the message is from the current user
+                    final isMe = msg['senderId'] == user?.uid;
 
                     final data = msg.data() as Map<String, dynamic>? ?? {};
-                    final petName = data.containsKey('petName') ? data['petName'] : 'water';
-                    final petLevel = data.containsKey('petLevel') ? data['petLevel'] : 1;
-                    final timestamp = data['timestamp'] as Timestamp?; // Get message timestamp
+                    final petName = data['petName'] ?? 'water';
+                    final petLevel = data['petLevel'] ?? 1;
+                    final timestamp = data['timestamp'] as Timestamp?;
+                    final reaction = data['reaction'];
+                    final edited = data['edited'] == true;
 
-                    // Determine pet image stage based on level
                     String stage = 'egg';
                     if (petLevel == 2) {
                       stage = 'baby';
@@ -140,70 +232,93 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
                       stage = 'old';
                     }
 
-                    final petImagePath = 'assets/${petName}_$stage.png'; // Construct image asset path
+                    final petImagePath = 'assets/${petName}_$stage.png';
 
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        left: isMe ? 60 : 12,
-                        right: isMe ? 12 : 60,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (!isMe)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 0, right: 6),
-                              child: CircleAvatar(
-                                radius: 20,
-                                backgroundImage: AssetImage(petImagePath), // Pet avatar
-                                backgroundColor: Colors.transparent,
-                              ),
-                            ),
-                          Flexible(
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxWidth: MediaQuery.of(context).size.width * 0.7, // Limit bubble width
-                              ),
-                              child: Container(
-                                margin: const EdgeInsets.symmetric(vertical: 4),
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: isMe ? Colors.green[200] : Colors.white, // Color based on sender
-                                  borderRadius: BorderRadius.circular(12),
+                    return GestureDetector(
+                      onTap: () => _showMessageOptions(msg, widget.groupId, msg.id),
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          left: isMe ? 60 : 12,
+                          right: isMe ? 12 : 60,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (!isMe)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 0, right: 6),
+                                child: CircleAvatar(
+                                  radius: 20,
+                                  backgroundImage: AssetImage(petImagePath),
+                                  backgroundColor: Colors.transparent,
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (!isMe)
-                                      Padding(
-                                        padding: const EdgeInsets.only(bottom: 4),
-                                        child: Text(
-                                          msg['senderName'] ?? 'Unknown', // Sender name
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
+                              ),
+                            Flexible(
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: MediaQuery.of(context).size.width * 0.7,
+                                ),
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(vertical: 4),
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: isMe ? Colors.green[200] : Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      if (!isMe)
+                                        Padding(
+                                          padding: const EdgeInsets.only(bottom: 4),
+                                          child: Text(
+                                            msg['senderName'] ?? 'Unknown',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
                                           ),
                                         ),
+                                      Text(
+                                        msg['text'] ?? '',
+                                        style: const TextStyle(fontSize: 16),
                                       ),
-                                    Text(
-                                      msg['text'] ?? '', // Message text
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      formatTimestamp(timestamp), // time
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[700],
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            formatTimestamp(timestamp),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey[700],
+                                            ),
+                                          ),
+                                          if (edited)
+                                            const Padding(
+                                              padding: EdgeInsets.only(left: 4),
+                                              child: Text(
+                                                "(edited)",
+                                                style: TextStyle(fontSize: 10, color: Colors.grey),
+                                              ),
+                                            ),
+                                        ],
                                       ),
-                                    ),
-                                  ],
+                                      if (reaction != null)
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 4.0),
+                                          child: Text(
+                                            reaction,
+                                            style: const TextStyle(fontSize: 18),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -232,7 +347,7 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
                 const SizedBox(width: 8),
                 IconButton(
                   icon: const Icon(Icons.send, color: Colors.black),
-                  onPressed: _sendMessage, // Send message on press
+                  onPressed: _sendMessage,
                 ),
               ],
             ),
