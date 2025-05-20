@@ -87,3 +87,14 @@ flutter pub get
 flutter run
 ```
 
+---
+
+## Credits
+
+### Cosmetics
+* https://xxashuraxx.itch.io/sword
+* https://snoopethduckduck.itch.io/shields
+* https://snoopethduckduck.itch.io/swords
+* https://free-game-assets.itch.io/free-bow-and-crossbow-pixel-art-icons
+* https://tankepxs.itch.io/free-weapon-pack
+* https://henrysoftware.itch.io/pixel-food
