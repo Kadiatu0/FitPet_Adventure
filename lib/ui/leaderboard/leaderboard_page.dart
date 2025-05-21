@@ -32,7 +32,8 @@ class LeaderboardScreenState extends State<LeaderboardScreen> {
     _getCurrentUserId();
     _addAllUsersToLeaderboard();
   }
-
+  
+//fetch logged in user's friend list
   Future<void> _getCurrentUserId() async {
     final user = FirebaseAuth.instance.currentUser;
     setState(() {
@@ -51,6 +52,7 @@ class LeaderboardScreenState extends State<LeaderboardScreen> {
     }
   }
 
+  //add and update users to the leaderboard
   Future<void> _addAllUsersToLeaderboard() async {
     try {
       final usersSnapshot =
@@ -64,6 +66,7 @@ class LeaderboardScreenState extends State<LeaderboardScreen> {
 
         if (userName == null || userName.isEmpty) continue;
 
+        //conversion for miles and calories
         final totalMiles = (currentStepcount / 2000).toStringAsFixed(1);
         final totalCalories = (currentStepcount * 0.04).toStringAsFixed(1);
 
@@ -101,6 +104,7 @@ class LeaderboardScreenState extends State<LeaderboardScreen> {
     }
   }
 
+  //mapping to firestore field names
   String getFirestoreField(String filter) {
     switch (filter) {
       case "Steps":
@@ -163,12 +167,14 @@ class LeaderboardScreenState extends State<LeaderboardScreen> {
           .orderBy(selectedField, descending: true);
     }
 
+    //stream data and display list
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: query.snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData)
           return const Center(child: CircularProgressIndicator());
 
+        //format data
         final docs = snapshot.data!.docs;
         final players =
             docs.map((doc) {
@@ -206,6 +212,7 @@ class LeaderboardScreenState extends State<LeaderboardScreen> {
     );
   }
 
+  //button for global and friends
   Widget _buildLeaderboardToggle() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -241,6 +248,7 @@ class LeaderboardScreenState extends State<LeaderboardScreen> {
     );
   }
 
+  //filter buttons for steps, miles, and calories
   Widget _buildFilterButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -273,6 +281,7 @@ class LeaderboardScreenState extends State<LeaderboardScreen> {
     );
   }
 
+  //card for the top 3 players
   Widget _buildTopThreePlayers(List<Map<String, dynamic>> players) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -297,6 +306,7 @@ class LeaderboardScreenState extends State<LeaderboardScreen> {
     );
   }
 
+  //card for top 1 player
   Widget _buildPlayerCard(
     String name,
     dynamic value,
@@ -322,6 +332,7 @@ class LeaderboardScreenState extends State<LeaderboardScreen> {
     );
   }
 
+  //item for leaderboard ranking
   Widget _buildLeaderboardItem(
     int rank,
     String name,
