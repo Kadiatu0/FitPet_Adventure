@@ -20,6 +20,7 @@ class FriendsChatPage extends StatefulWidget {
 class _FriendsChatPageState extends State<FriendsChatPage> {
   final TextEditingController _messageController = TextEditingController();
 
+  //generate chatID using both of the users' IDs
   String _getChatId(String userId1, String userId2) {
     return userId1.hashCode <= userId2.hashCode
         ? '${userId1}_$userId2'
@@ -50,6 +51,7 @@ class _FriendsChatPageState extends State<FriendsChatPage> {
         });
   }
 
+  //delete messages after confirming
   Future<void> _deleteMessage(String chatId, String messageId) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -82,6 +84,7 @@ class _FriendsChatPageState extends State<FriendsChatPage> {
     }
   }
 
+  //formatting timestamp
   String _formatTimestamp(Timestamp timestamp) {
     final dateTime = timestamp.toDate();
     final now = DateTime.now();
@@ -97,6 +100,7 @@ class _FriendsChatPageState extends State<FriendsChatPage> {
     }
   }
 
+  //show three options after selecting a message: edit, delete, emojis
   void _showMessageOptions(DocumentSnapshot msg, String chatId) async {
     final isMe = msg['senderId'] == widget.currentUserId;
     final messageId = msg.id;
@@ -220,7 +224,7 @@ class _FriendsChatPageState extends State<FriendsChatPage> {
 
                 final messages = snapshot.data!.docs;
 
-                // Mark unread messages as read
+                //mark unread messages as read
                 for (var doc in messages) {
                   final messageData = doc.data() as Map<String, dynamic>?;
                   if (messageData != null &&
@@ -236,7 +240,7 @@ class _FriendsChatPageState extends State<FriendsChatPage> {
                   itemBuilder: (context, index) {
                     final msg = messages[index];
 
-                    // Safely cast the data to Map<String, dynamic>
+                    //cast the data to Map<String, dynamic>
                     final messageData = msg.data() as Map<String, dynamic>?;
                     if (messageData == null ||
                         !messageData.containsKey('message') ||
