@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 
 import '../view_model/home_viewmodel.dart';
 import '../../core/ui/display_cosmetic.dart';
@@ -40,27 +41,29 @@ class _PetViewState extends State<PetView> with TickerProviderStateMixin {
 
     final selected = await showDialog<String>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Choose Background'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: GridView.count(
-            shrinkWrap: true,
-            crossAxisCount: 2,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            children: backgrounds.map((path) {
-              return GestureDetector(
-                onTap: () => Navigator.pop(context, path),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(path, fit: BoxFit.cover),
-                ),
-              );
-            }).toList(),
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Choose Background'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: GridView.count(
+                shrinkWrap: true,
+                crossAxisCount: 2,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                children:
+                    backgrounds.map((path) {
+                      return GestureDetector(
+                        onTap: () => Navigator.pop(context, path),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.asset(path, fit: BoxFit.cover),
+                        ),
+                      );
+                    }).toList(),
+              ),
+            ),
           ),
-        ),
-      ),
     );
 
     if (selected != null) {
@@ -108,7 +111,10 @@ class _PetViewState extends State<PetView> with TickerProviderStateMixin {
                   final petName = snapshot.data ?? '';
                   return Text(
                     petName,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                    ),
                   );
                 },
               ),
@@ -125,19 +131,26 @@ class _PetViewState extends State<PetView> with TickerProviderStateMixin {
                         ]),
                         builder: (_, snapshot) {
                           if (!snapshot.hasData) {
-                            return SizedBox(width: petSize.width, height: petSize.height);
+                            return SizedBox(
+                              width: petSize.width,
+                              height: petSize.height,
+                            );
                           }
 
                           final petType = snapshot.data![0] as String;
                           if (petType == '') {
-                            return SizedBox(width: petSize.width, height: petSize.height);
+                            return SizedBox(
+                              width: petSize.width,
+                              height: petSize.height,
+                            );
                           }
 
                           final petEvolutionName = viewModel.petEvolutionName;
 
                           return GestureDetector(
                             onTap: _triggerJump, // Tapping on pet triggers jump
-                            onDoubleTap: _showBackgroundPicker, // Double tap for background picker
+                            onDoubleTap:
+                                _showBackgroundPicker, // Double tap for background picker
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
@@ -145,27 +158,36 @@ class _PetViewState extends State<PetView> with TickerProviderStateMixin {
                                   borderRadius: BorderRadius.circular(20),
                                   child: Image.asset(
                                     viewModel.backgroundImage,
-                                    width: petSize.width * 2.5, // Increased size
-                                    height: petSize.height * 1, // Increased size
+                                    width:
+                                        petSize.width * 2.5, // Increased size
+                                    height:
+                                        petSize.height * 1, // Increased size
                                     fit: BoxFit.cover,
                                   ),
                                 ),
                                 AnimatedContainer(
                                   duration: const Duration(milliseconds: 150),
-                                  transform: Matrix4.translationValues(0, _jumpOffset, 0),
+                                  transform: Matrix4.translationValues(
+                                    0,
+                                    _jumpOffset,
+                                    0,
+                                  ),
                                   child: Stack(
                                     children: [
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(20),
                                         child: Image.asset(
                                           'assets/${petType}_$petEvolutionName.png',
-                                          width: petSize.width, // Increased size
-                                          height: petSize.height, // Increased size
+                                          width:
+                                              petSize.width, // Increased size
+                                          height:
+                                              petSize.height, // Increased size
                                           fit: BoxFit.fill,
                                           alignment: Alignment.topLeft,
                                         ),
                                       ),
-                                      for (final cosmetic in viewModel.placedCosmetics.values)
+                                      for (final cosmetic
+                                          in viewModel.placedCosmetics.values)
                                         DisplayCosmetic(
                                           cosmetic: cosmetic,
                                           newPetSize: petSize,
@@ -185,23 +207,30 @@ class _PetViewState extends State<PetView> with TickerProviderStateMixin {
                         },
                       ),
                       const SizedBox(height: 30),
-                      Builder(
-                        builder: (_) {
-                          if (viewModel.petEvolutionName == 'old') {
-                            return EvolutionBar(
-                            stepCount: viewModel.stepGoal,
-                            stepGoal: viewModel.stepGoal,
-                          );
+                      GestureDetector(
+                        onTap: () async {
+                          if (kDebugMode) {
+                            await viewModel.incrementSteps();
                           }
-
-                          final stepCount = viewModel.totalSteps 
-                          % viewModel.stepGoal;
-
-                          return EvolutionBar(
-                            stepCount: stepCount,
-                            stepGoal: viewModel.stepGoal,
-                          );
                         },
+                        child: Builder(
+                          builder: (_) {
+                            if (viewModel.petEvolutionName == 'old') {
+                              return EvolutionBar(
+                                stepCount: viewModel.stepGoal,
+                                stepGoal: viewModel.stepGoal,
+                              );
+                            }
+
+                            final stepCount =
+                                viewModel.totalSteps % viewModel.stepGoal;
+
+                            return EvolutionBar(
+                              stepCount: stepCount,
+                              stepGoal: viewModel.stepGoal,
+                            );
+                          },
+                        ),
                       ),
                     ],
                   );
@@ -253,11 +282,7 @@ class _HiMessage extends StatelessWidget {
         color: const Color.fromARGB(255, 245, 190, 96),
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
-          BoxShadow(
-            color: Colors.white,
-            blurRadius: 10,
-            spreadRadius: 3,
-          ),
+          BoxShadow(color: Colors.white, blurRadius: 10, spreadRadius: 3),
         ],
       ),
       child: const Text(

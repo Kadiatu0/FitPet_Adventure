@@ -1,6 +1,4 @@
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show KeyDownEvent, LogicalKeyboardKey;
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -18,19 +16,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
+      extendBodyBehindAppBar: true,
       backgroundColor: const Color(0xFFF5D7A1),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, size: 40, color: Color.fromARGB(255, 46, 40, 30)),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-            tooltip: 'Settings',
-          ),
-        ),
-      ),
       drawer: Drawer(
         backgroundColor: const Color(0xFFF5D7A1),
         child: ListView(
@@ -46,7 +34,10 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.email, color: Color.fromARGB(255, 228, 159, 55)),
+              leading: const Icon(
+                Icons.email,
+                color: Color.fromARGB(255, 228, 159, 55),
+              ),
               title: const Text('Change Email'),
               onTap: () {
                 Navigator.pop(context);
@@ -54,7 +45,10 @@ class HomeScreen extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.lock, color: Color.fromARGB(255, 228, 159, 55)),
+              leading: const Icon(
+                Icons.lock,
+                color: Color.fromARGB(255, 228, 159, 55),
+              ),
               title: const Text('Change Password'),
               onTap: () {
                 Navigator.pop(context);
@@ -62,7 +56,10 @@ class HomeScreen extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.logout, color: Color.fromARGB(255, 228, 159, 55)),
+              leading: const Icon(
+                Icons.logout,
+                color: Color.fromARGB(255, 228, 159, 55),
+              ),
               title: const Text('Logout'),
               onTap: () async {
                 await FirebaseAuth.instance.signOut();
@@ -77,45 +74,53 @@ class HomeScreen extends StatelessWidget {
           viewModel.loadEvolutionNum(),
           viewModel.loadSteps(),
         ]),
-        builder: (_, __) {
-          return KeyboardListener(
-            focusNode: FocusNode()..requestFocus(),
-            autofocus: true,
-            onKeyEvent: (event) async {
-              if (kDebugMode &&
-                  event is KeyDownEvent &&
-                  event.logicalKey == LogicalKeyboardKey.space) {
-                await viewModel.incrementSteps();
-              }
-            },
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final petViewHeight = constraints.maxHeight / 3.0;
-                final petSize = Size(petViewHeight, petViewHeight);
+        builder: (_, _) {
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final petViewHeight = constraints.maxHeight / 3.0;
+              final petSize = Size(petViewHeight, petViewHeight);
 
-                return Column(
-                  children: [
-                    SafeArea(
-                      child: PetView(
-                        viewModel: viewModel,
-                        petSize: petSize,
-                      ),
+              return Column(
+                children: [
+                  SafeArea(
+                    child: Stack(
+                      children: [
+                        AppBar(
+                          backgroundColor: Colors.transparent,
+                          elevation: 0,
+                          automaticallyImplyLeading: false,
+                          leading: Builder(
+                            builder:
+                                (context) => IconButton(
+                                  icon: const Icon(
+                                    Icons.menu,
+                                    size: 40,
+                                    color: Color.fromARGB(255, 46, 40, 30),
+                                  ),
+                                  onPressed:
+                                      () => Scaffold.of(context).openDrawer(),
+                                  tooltip: 'Settings',
+                                ),
+                          ),
+                        ),
+                        PetView(viewModel: viewModel, petSize: petSize),
+                      ],
                     ),
-                    const Divider(
-                      color: Color.fromARGB(255, 142, 138, 113),
-                      thickness: 2.0,
-                      height: 0.0,
-                    ),
-                    StepsGraph(viewModel: viewModel),
-                    const Divider(
-                      color: Color(0xFF8E8971),
-                      thickness: 2.0,
-                      height: 0.0,
-                    ),
-                  ],
-                );
-              },
-            ),
+                  ),
+                  const Divider(
+                    color: Color.fromARGB(255, 142, 138, 113),
+                    thickness: 2.0,
+                    height: 0.0,
+                  ),
+                  StepsGraph(viewModel: viewModel),
+                  const Divider(
+                    color: Color(0xFF8E8971),
+                    thickness: 2.0,
+                    height: 0.0,
+                  ),
+                ],
+              );
+            },
           );
         },
       ),

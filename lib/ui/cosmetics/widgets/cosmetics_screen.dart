@@ -18,6 +18,7 @@ class CosmeticsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Color(0xFFF5D7A1),
       body: SafeArea(
         child: LayoutBuilder(
