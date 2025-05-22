@@ -55,26 +55,26 @@ class _CreatePageState extends State<CreatePage> {
     setState(() => nameError = null);
 
     // Add the new community to Firestore
-final newCommunityRef = await FirebaseFirestore.instance
-    .collection('communities')
-    .add({
-  'groupName': name,
-  'groupDescription': description,
-  'type': isPublic ? 'Public' : 'Private',
-  'members': [currentUserId],
-  'adminId': currentUserId,
-  'iconIndex': selectedIconIndex,
-  'memberCount': 1,
-  'createdAt': FieldValue.serverTimestamp(),
-});
+    final newCommunityRef = await FirebaseFirestore.instance
+        .collection('communities')
+        .add({
+      'groupName': name,
+      'groupDescription': description,
+      'type': isPublic ? 'Public' : 'Private',
+      'members': [currentUserId],
+      'adminId': currentUserId,
+      'iconIndex': selectedIconIndex,
+      'memberCount': 1,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
 
-// Add community ID to user's joinedGroups
-await FirebaseFirestore.instance
-    .collection('users')
-    .doc(currentUserId)
-    .update({
-  'joinedGroups': FieldValue.arrayUnion([newCommunityRef.id]),
-});
+    // Add community ID to user's joinedGroups
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUserId)
+        .update({
+      'joinedGroups': FieldValue.arrayUnion([newCommunityRef.id]),
+    });
 
     // Show confirmation and navigate back
     final messenger = ScaffoldMessenger.of(context);
@@ -132,8 +132,19 @@ await FirebaseFirestore.instance
                   final userData = snapshot.data!.data() as Map<String, dynamic>;
                   final userName = userData['name'] ?? 'Unknown';
                   final petMap = userData['pet'] as Map<String, dynamic>? ?? {};
-                  final petType = petMap['type'] ?? 'water';
-                  final petImagePath = 'assets/${petType}_egg.png';
+                  final petType = petMap['type']?.toString().replaceAll(' ', '_') ?? 'water';
+                  final evolutionBarPoints = petMap['evolutionBarPoints'] ?? 0;
+
+                  String stage;
+                  if (evolutionBarPoints >= 2) {
+                    stage = 'old';
+                  } else if (evolutionBarPoints == 1) {
+                    stage = 'baby';
+                  } else {
+                    stage = 'egg';
+                  }
+
+                  final petImagePath = 'assets/${petType}_$stage.png';
 
                   return Column(
                     children: [

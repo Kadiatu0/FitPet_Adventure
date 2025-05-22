@@ -57,8 +57,6 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
         .get();
 
     final pet = userDoc.data()?['pet'] as Map<String, dynamic>? ?? {};
-    final petName = pet['name'] ?? 'water';
-    final petLevel = pet['level'] ?? 1;
 
     await FirebaseFirestore.instance
         .collection('communityChats')
@@ -67,8 +65,7 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
         .add({
       'senderId': user?.uid,
       'senderName': userName ?? 'Unknown',
-      'petName': petName,
-      'petLevel': petLevel,
+      'pet': pet,
       'text': message,
       'timestamp': FieldValue.serverTimestamp(), // Firestore will populate this with the current server time
       'edited': false,
@@ -219,20 +216,23 @@ class _CommunityChatPageState extends State<CommunityChatPage> {
                     final isMe = msg['senderId'] == user?.uid;
 
                     final data = msg.data() as Map<String, dynamic>? ?? {};
-                    final petName = data['petName'] ?? 'water';
-                    final petLevel = data['petLevel'] ?? 1;
+                    final petMap = data['pet'] as Map<String, dynamic>? ?? {};
+                    final petType = petMap['type']?.toString().replaceAll(' ', '_') ?? 'water';
+                    final evolutionBarPoints = petMap['evolutionBarPoints'] ?? 0;
                     final timestamp = data['timestamp'] as Timestamp?;
                     final reaction = data['reaction'];
                     final edited = data['edited'] == true;
 
-                    String stage = 'egg';
-                    if (petLevel == 2) {
-                      stage = 'baby';
-                    } else if (petLevel == 3) {
+                    String stage;
+                    if (evolutionBarPoints >= 2) {
                       stage = 'old';
+                    } else if (evolutionBarPoints == 1) {
+                      stage = 'baby';
+                    } else {
+                      stage = 'egg';
                     }
 
-                    final petImagePath = 'assets/${petName}_$stage.png';
+                    final petImagePath = 'assets/${petType}_$stage.png';
 
                     return GestureDetector(
                       onTap: () => _showMessageOptions(msg, widget.groupId, msg.id),

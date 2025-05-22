@@ -69,13 +69,13 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
 
           final petMap = userData?['pet'] as Map<String, dynamic>? ?? {};
           final petName = petMap['type'] ?? 'water';
-          final petLevel = petMap['level'] ?? 1;
+          final evolutionBarPoints = petMap['evolutionBarPoints'] ?? 0;
 
           memberList.add({
             'name': name,
             'steps': steps,
             'petName': petName,
-            'petLevel': petLevel,
+            'evolutionBarPoints': evolutionBarPoints,
             'userId': id,
           });
         }
@@ -307,12 +307,17 @@ class _CommunityViewPageState extends State<CommunityViewPage> {
                       itemBuilder: (context, index) {
                         final member = members[index];
                         final petName = member['petName'];
-                        final petLevel = member['petLevel'];
+                        final evolutionBarPoints = member['evolutionBarPoints'];
                         final memberId = member['userId'];
 
-                        String stage = 'egg';
-                        if (petLevel == 2) stage = 'baby';
-                        else if (petLevel == 3) stage = 'old';
+                        String stage;
+                        if (evolutionBarPoints >= 2) {
+                          stage = 'old';
+                        } else if (evolutionBarPoints == 1) {
+                          stage = 'baby';
+                        } else {
+                          stage = 'egg';
+                        }
 
                         final petImagePath = 'assets/${petName}_$stage.png';
 
